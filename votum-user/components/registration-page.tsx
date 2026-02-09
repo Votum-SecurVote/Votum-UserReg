@@ -19,6 +19,7 @@ import {
 
 interface RegistrationPageProps {
   onNavigateToLogin: () => void
+  onNavigateToProfile?: () => void
 }
 
 interface FormData {
@@ -84,7 +85,7 @@ function PasswordStrengthBar({ password }: { password: string }) {
   )
 }
 
-export function RegistrationPage({ onNavigateToLogin }: RegistrationPageProps) {
+export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: RegistrationPageProps) {
   const { register, isLoading } = useAuth()
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
@@ -250,9 +251,16 @@ export function RegistrationPage({ onNavigateToLogin }: RegistrationPageProps) {
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Awaiting Approval
             </div>
-            <Button onClick={onNavigateToLogin} className="w-full mt-4 h-11">
-              Back to Login
-            </Button>
+            <div className="flex flex-col gap-2 mt-4">
+              {onNavigateToProfile && (
+                <Button onClick={onNavigateToProfile} className="w-full h-11">
+                  View My Profile
+                </Button>
+              )}
+              <Button onClick={onNavigateToLogin} variant="outline" className="w-full h-11">
+                Back to Login
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

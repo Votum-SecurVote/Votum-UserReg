@@ -6,6 +6,7 @@ import { mockUser } from "@/lib/mock-data"
 
 interface AuthContextType {
   user: User | null
+  registeredUser: User | null
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ requiresOtp: boolean }>
@@ -22,6 +23,7 @@ const WARNING_BEFORE = 60 * 1000 // 1 minute before timeout
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [registeredUser, setRegisteredUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -79,9 +81,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true
   }, [])
 
-  const register = useCallback(async (_data: Record<string, unknown>) => {
+  const register = useCallback(async (data: Record<string, unknown>) => {
     setIsLoading(true)
     await new Promise((r) => setTimeout(r, 1500))
+    
+    // Create a user object from registration data
+    const newUser: User = {
+      id: `usr_${Date.now()}`,
+      fullName: data.fullName as string,
+      email: data.email as string,
+      phone: data.phone as string,
+      aadhaar: data.aadhaar as string,
+      dob: data.dob as string,
+      gender: data.gender as string,
+      address: data.address as string,
+      status: "PENDING",
+      role: "voter",
+      profilePhoto: data.capturedPhoto as string || undefined,
+    }
+    
+    setRegisteredUser(newUser)
     setIsLoading(false)
     return true
   }, [])
@@ -94,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        registeredUser,
         isAuthenticated: !!user,
         isLoading,
         login,
