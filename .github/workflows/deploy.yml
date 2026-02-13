@@ -27,4 +27,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: <your-username>/votum-user-app:latest
+          tags: kirethik/votum-user-app:latest
