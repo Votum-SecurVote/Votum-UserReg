@@ -44,7 +44,7 @@ jobs:
           tags: kirethik/votum-user-app:latest
 
       # -------------------------
-      # Deploy to EC2
+      # Deploy to EC2 (Reverse Proxy Architecture)
       # -------------------------
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -53,15 +53,23 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd ~/votum
+
+            # Create Docker network if not exists
+            docker network create votum-network || true
+
+            # Pull latest image
             docker pull kirethik/votum-user-app:latest
 
+            # Stop and remove old container
             docker stop votum-user || true
             docker rm votum-user || true
 
+            # Run WITHOUT exposing port publicly
             docker run -d \
               --name votum-user \
               --restart always \
-              -p 80:3000 \
+              --network votum-network \
               kirethik/votum-user-app:latest
 
       # -------------------------
