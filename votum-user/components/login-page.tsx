@@ -34,38 +34,33 @@ export function LoginPage({
     e.preventDefault()
     setError("")
 
-    if (!email.trim()) {
-      setError("Email or phone is required.")
-      return
-    }
-
-    if (!validateEmail(email)) {
-      setError("Enter a valid email address or 10-digit phone number.")
-      return
-    }
-
-    if (!password) {
-      setError("Password is required.")
-      return
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.")
-      return
-    }
-
     try {
-      const result = await login(email, password)
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
 
-      if (result?.requiresOtp) {
-        setStep("otp")
-      } else {
-        onLoginSuccess() // ✅ Go to dashboard
+      if (!res.ok) {
+        throw new Error("Login failed")
       }
+
+      const token = await res.text()
+
+      localStorage.setItem("token", token)
+
+      setStep("otp")
+
     } catch {
       setError("Invalid credentials. Please try again.")
     }
   }
+
 
   const handleOtpVerify = async () => {
     setError("")
