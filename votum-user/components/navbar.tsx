@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Shield, LayoutDashboard, User, LogOut, Menu, X } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface NavbarProps {
   currentPage: string
@@ -11,13 +11,41 @@ interface NavbarProps {
 }
 
 export function Navbar({ currentPage, onNavigate }: NavbarProps) {
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [fullName, setFullName] = useState<string>("")
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "profile", label: "Profile", icon: User },
   ]
+
+  // ✅ Fetch user name from backend
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token")
+
+        const res = await fetch("http://localhost:8080/api/user/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch profile")
+        }
+
+        const data = await res.json()
+        setFullName(data.fullName)
+
+      } catch (err) {
+        console.error("Navbar profile fetch error:", err)
+      }
+    }
+
+    fetchProfile()
+  }, [])
 
   return (
     <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
@@ -38,20 +66,21 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
               key={item.id}
               type="button"
               onClick={() => onNavigate(item.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                currentPage === item.id
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === item.id
                   ? "bg-primary-foreground/20"
                   : "hover:bg-primary-foreground/10"
-              }`}
+                }`}
             >
               <item.icon className="h-4 w-4" />
               {item.label}
             </button>
           ))}
+
           <div className="ml-3 pl-3 border-l border-primary-foreground/25 flex items-center gap-3">
             <span className="text-sm opacity-90">
-              {user?.fullName}
+              {fullName || "Loading..."}
             </span>
+
             <Button
               variant="outline"
               size="sm"
@@ -78,6 +107,10 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
       {/* Mobile nav */}
       {mobileOpen && (
         <nav className="md:hidden border-t border-primary-foreground/20 px-4 py-3 space-y-1">
+          <div className="px-3 py-2 text-sm font-medium opacity-90">
+            {fullName}
+          </div>
+
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -86,23 +119,23 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 onNavigate(item.id)
                 setMobileOpen(false)
               }}
-              className={`flex items-center gap-3 w-full px-3 py-3 rounded-md text-sm font-medium transition-colors min-h-[48px] ${
-                currentPage === item.id
+              className={`flex items-center gap-3 w-full px-3 py-3 rounded-md text-sm font-medium transition-colors min-h-[48px] ${currentPage === item.id
                   ? "bg-primary-foreground/20"
                   : "hover:bg-primary-foreground/10"
-              }`}
+                }`}
             >
               <item.icon className="h-5 w-5" />
               {item.label}
             </button>
           ))}
+
           <button
             type="button"
             onClick={() => {
               logout()
               setMobileOpen(false)
             }}
-            className="flex items-center gap-3 w-full px-3 py-3 rounded-md text-sm font-medium hover:bg-primary-foreground/10 text-destructive-foreground min-h-[48px]"
+            className="flex items-center gap-3 w-full px-3 py-3 rounded-md text-sm font-medium hover:bg-primary-foreground/10 min-h-[48px]"
           >
             <LogOut className="h-5 w-5" />
             Logout
