@@ -8,20 +8,33 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
+      # -------------------------
+      # Checkout Code
+      # -------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # -------------------------
+      # Setup Docker Buildx
+      # -------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # -------------------------
+      # Login to Docker Hub
+      # -------------------------
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # -------------------------
+      # Build & Push Docker Image
+      # -------------------------
       - name: Build and Push Image
         uses: docker/build-push-action@v5
         with:
@@ -30,6 +43,9 @@ jobs:
           push: true
           tags: kirethik/votum-user-app:latest
 
+      # -------------------------
+      # Deploy to EC2
+      # -------------------------
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -38,10 +54,38 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             docker pull kirethik/votum-user-app:latest
+
             docker stop votum-user || true
             docker rm votum-user || true
+
             docker run -d \
               --name votum-user \
-              -p 80:3000 \
               --restart always \
+              -p 80:3000 \
               kirethik/votum-user-app:latest
+
+      # -------------------------
+      # Send Email on Failure
+      # -------------------------
+      - name: Send Email on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚨 Votum User Deployment Failed"
+          body: |
+            Votum User deployment FAILED.
+
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
+            Workflow: ${{ github.workflow }}
+            Run ID: ${{ github.run_id }}
+
+            Please check GitHub Actions logs immediately.
+          to: ${{ secrets.EMAIL_TO }}
+          from: Votum CI/CD
