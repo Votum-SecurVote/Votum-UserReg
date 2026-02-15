@@ -11,17 +11,26 @@ import { ElectionDetailsPage } from "@/components/election-details-page"
 import { ProfilePage } from "@/components/profile-page"
 import { Navbar } from "@/components/navbar"
 
-type AppPage = "login" | "register" | "registration-profile" | "dashboard" | "election" | "profile"
+type AppPage =
+  | "login"
+  | "register"
+  | "registration-profile"
+  | "dashboard"
+  | "election"
+  | "profile"
 
 export default function Page() {
   const { isAuthenticated } = useAuth()
   const [currentPage, setCurrentPage] = useState<AppPage>("login")
-  const [selectedElection, setSelectedElection] = useState<Election | null>(null)
+  const [selectedElection, setSelectedElection] =
+    useState<Election | null>(null)
 
-  // Redirect to login if not authenticated and trying to access protected pages
   const protectedPages: AppPage[] = ["dashboard", "election", "profile"]
+
   const activePage =
-    !isAuthenticated && protectedPages.includes(currentPage) ? "login" : currentPage
+    !isAuthenticated && protectedPages.includes(currentPage)
+      ? "login"
+      : currentPage
 
   const handleViewElection = (election: Election) => {
     setSelectedElection(election)
@@ -32,11 +41,11 @@ export default function Page() {
     setCurrentPage(page as AppPage)
   }
 
-  // Auth pages (no navbar)
   if (activePage === "login") {
     return (
       <LoginPage
         onNavigateToRegister={() => setCurrentPage("register")}
+        onLoginSuccess={() => setCurrentPage("dashboard")}  // ✅ THIS FIXES IT
       />
     )
   }
@@ -58,7 +67,6 @@ export default function Page() {
     )
   }
 
-  // Protected pages (with navbar)
   return (
     <div className="min-h-screen bg-background">
       <Navbar currentPage={activePage} onNavigate={handleNavigate} />

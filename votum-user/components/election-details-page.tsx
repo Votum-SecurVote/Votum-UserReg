@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import {
   ArrowLeft, Calendar, Clock, ShieldCheck, ListChecks, Users, CheckCircle2
 } from "lucide-react"
-
 interface ElectionDetailsProps {
   election: Election
   onBack: () => void
