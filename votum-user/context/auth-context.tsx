@@ -76,30 +76,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const register = useCallback(async (data: Record<string, unknown>) => {
-    setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 1500))
+    try {
+      setIsLoading(true)
 
-    // Create a user object from registration data
-    const newUser: User = {
-      id: `usr_${Date.now()}`,
-      fullName: data.fullName as string,
-      email: data.email as string,
-      phone: data.phone as string,
-      aadhaar: data.aadhaar as string,
-      dob: data.dob as string,
-      gender: data.gender as string,
-      address: data.address as string,
-      status: "PENDING",
-      role: "voter",
-      profilePhoto: data.capturedPhoto as string || undefined,
+      const formData = new FormData()
+
+      const requestPayload = {
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        password: data.password,
+        aadhaar: data.aadhaar,
+        dob: data.dob,
+        gender: data.gender,
+        address: data.address,
+      }
+
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(requestPayload)], {
+          type: "application/json",
+        })
+      )
+
+      if (data.profilePhoto) {
+        formData.append("photo", data.profilePhoto as File)
+      }
+
+      if (data.aadhaarFile) {
+        formData.append("aadhaarPdf", data.aadhaarFile as File)
+      }
+
+      const response = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText)
+      }
+
+      setIsLoading(false)
+      return true
+    } catch (error) {
+      console.error("Registration failed:", error)
+      setIsLoading(false)
+      return false
     }
-
-    setRegisteredUser(newUser)
-    setIsLoading(false)
-    return true
   }, [])
-
-
 
   return (
     <AuthContext.Provider
