@@ -9,11 +9,10 @@ interface AuthContextType {
   registeredUser: User | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (email: string, password: string) => Promise<{ requiresOtp: boolean }>
   verifyOtp: (otp: string) => Promise<boolean>
   register: (data: Record<string, unknown>) => Promise<boolean>
   logout: () => void
-  updateProfile: (data: Partial<User>) => void
+  updateProfile?: (data: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -66,12 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, resetInactivityTimer])
 
-  const login = useCallback(async (_email: string, _password: string) => {
-    setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 1200))
-    setIsLoading(false)
-    return { requiresOtp: true }
-  }, [])
+
 
   const verifyOtp = useCallback(async (_otp: string) => {
     setIsLoading(true)
@@ -84,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(async (data: Record<string, unknown>) => {
     setIsLoading(true)
     await new Promise((r) => setTimeout(r, 1500))
-    
+
     // Create a user object from registration data
     const newUser: User = {
       id: `usr_${Date.now()}`,
@@ -99,15 +93,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role: "voter",
       profilePhoto: data.capturedPhoto as string || undefined,
     }
-    
+
     setRegisteredUser(newUser)
     setIsLoading(false)
     return true
   }, [])
 
-  const updateProfile = useCallback((data: Partial<User>) => {
-    setUser((prev) => (prev ? { ...prev, ...data } : null))
-  }, [])
+
 
   return (
     <AuthContext.Provider
@@ -116,11 +108,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         registeredUser,
         isAuthenticated: !!user,
         isLoading,
-        login,
         verifyOtp,
         register,
         logout,
-        updateProfile,
+        updateProfile: undefined,
       }}
     >
       {children}

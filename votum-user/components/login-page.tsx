@@ -18,7 +18,7 @@ export function LoginPage({
   onNavigateToRegister,
   onLoginSuccess,
 }: LoginPageProps) {
-  const { login, verifyOtp, isLoading } = useAuth()
+  const { verifyOtp, isLoading } = useAuth()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
