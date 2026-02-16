@@ -5,7 +5,6 @@ import { useAuth } from "@/context/auth-context"
 import type { Election } from "@/lib/types"
 import { LoginPage } from "@/components/login-page"
 import { RegistrationPage } from "@/components/registration-page"
-import { RegistrationProfileView } from "@/components/registration-profile-view"
 import { DashboardPage } from "@/components/dashboard-page"
 import { ElectionDetailsPage } from "@/components/election-details-page"
 import { ProfilePage } from "@/components/profile-page"
@@ -14,7 +13,6 @@ import { Navbar } from "@/components/navbar"
 type AppPage =
   | "login"
   | "register"
-  | "registration-profile"
   | "dashboard"
   | "election"
   | "profile"
@@ -54,18 +52,11 @@ export default function Page() {
     return (
       <RegistrationPage
         onNavigateToLogin={() => setCurrentPage("login")}
-        onNavigateToProfile={() => setCurrentPage("registration-profile")}
+
       />
     )
   }
 
-  if (activePage === "registration-profile") {
-    return (
-      <RegistrationProfileView
-        onNavigateToLogin={() => setCurrentPage("login")}
-      />
-    )
-  }
 
   return (
     <div className="min-h-screen bg-background">
