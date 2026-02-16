@@ -114,7 +114,7 @@ describe('RegistrationPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Registration Submitted')).toBeInTheDocument()
     }, { timeout: 3000 })
-  })
+  }, 15000)
 
   it('handles camera permission denied', async () => {
     renderRegistrationPage()

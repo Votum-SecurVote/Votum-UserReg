@@ -7,6 +7,7 @@ describe('Form Validation Logic', () => {
   // Helper functions extracted from registration-page.tsx for testing
   const validateEmail = (email: string): boolean => {
     if (!email.trim()) return false
+    if (email.includes('..')) return false
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
@@ -60,7 +61,7 @@ describe('Form Validation Logic', () => {
     test('should accept valid 10-digit phone numbers', () => {
       const validPhones = [
         '9876543210',
-        '8765432109', 
+        '8765432109',
         '7654321098',
         '9123456789'
       ]
