@@ -135,15 +135,19 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     }
   }, [])
 
+  // Handle video stream attachment
+  useEffect(() => {
+    if (cameraActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+    }
+  }, [cameraActive])
+
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 320, height: 240 },
       })
       streamRef.current = stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
       setCameraActive(true)
     } catch {
       setErrors((prev) => ({

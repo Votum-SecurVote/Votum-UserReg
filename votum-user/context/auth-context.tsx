@@ -107,6 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         formData.append("aadhaarPdf", data.aadhaarFile as File)
       }
 
+      // MOCK IMPLEMENTATION: Simulate network delay and success
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      
+      console.log("Mock Registration Data:", { requestPayload })
+
+      /* 
+      // Original API Call - restore when backend is available
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         body: formData,
@@ -117,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const errorText = await response.text()
         throw new Error(errorText)
       }
+      */
 
       setIsLoading(false)
       return true
