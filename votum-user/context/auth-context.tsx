@@ -11,6 +11,7 @@ interface AuthContextType {
   isLoading: boolean
   verifyOtp: (otp: string) => Promise<boolean>
   register: (data: Record<string, unknown>) => Promise<boolean>
+  login: (data: Record<string, unknown>) => Promise<boolean>
   logout: () => void
   updateProfile?: (data: Partial<User>) => void
 }
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setShowTimeoutWarning(false)
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     if (warningRef.current) clearTimeout(warningRef.current)
+    localStorage.removeItem("token")
   }, [])
 
   const resetInactivityTimer = useCallback(() => {
@@ -64,6 +66,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (warningRef.current) clearTimeout(warningRef.current)
     }
   }, [user, resetInactivityTimer])
+
+  const login = useCallback(async (data: Record<string, unknown>) => {
+    setIsLoading(true)
+    try {
+        const res = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        })
+
+        if (!res.ok) throw new Error("Login failed")
+
+        const token = await res.text()
+        localStorage.setItem("token", token)
+        
+        // In a real app, we might also fetch user details here
+        // For now, setting a mock user to simulate "logged in" state
+        setUser(mockUser) 
+        
+        setIsLoading(false)
+        return true
+    } catch (error) {
+        console.error("Login failed:", error)
+        setIsLoading(false)
+        return false
+    }
+  }, [])
+
 
 
 
@@ -142,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         registeredUser,
         isAuthenticated: !!user,
         isLoading,
+        login,
         verifyOtp,
         register,
         logout,

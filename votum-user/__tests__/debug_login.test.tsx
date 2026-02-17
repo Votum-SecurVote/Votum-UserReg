@@ -20,7 +20,7 @@ describe('Debug LoginPage', () => {
             screen.getByLabelText('Email or Phone')
             fs.writeFileSync(path.resolve(__dirname, 'login_debug_result.txt'), 'Found Email or Phone')
         } catch (e) {
-            fs.writeFileSync(path.resolve(__dirname, 'login_debug_result.txt'), 'Error: ' + e.message)
+            fs.writeFileSync(path.resolve(__dirname, 'login_debug_result.txt'), 'Error: ' + (e as Error).message)
         }
     })
 })

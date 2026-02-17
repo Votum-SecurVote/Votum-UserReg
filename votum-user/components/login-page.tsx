@@ -18,7 +18,7 @@ export function LoginPage({
   onNavigateToRegister,
   onLoginSuccess,
 }: LoginPageProps) {
-  const { verifyOtp, isLoading: isOtpLoading } = useAuth()
+  const { login, verifyOtp, isLoading } = useAuth()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -26,9 +26,6 @@ export function LoginPage({
   const [step, setStep] = useState<"credentials" | "otp">("credentials")
   const [otp, setOtp] = useState("")
   const [error, setError] = useState("")
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
-
-  const isLoading = isOtpLoading || isLoggingIn
 
   const validateEmail = (val: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || /^\d{10}$/.test(val)
@@ -37,46 +34,23 @@ export function LoginPage({
     e.preventDefault()
     setError("")
 
-    if (!email) {
+    if (!email || !password) {
       setError("Email or phone is required.")
       return
     }
 
-    if (!password) {
-      setError("Password is required.")
-      return
-    }
-
-    setIsLoggingIn(true)
-
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      })
-
-      if (!res.ok) {
-        throw new Error("Login failed")
+      const success = await login({ email, password })
+      if (success) {
+        setStep("otp")
+      } else {
+        setError("Invalid credentials. Please try again.")
       }
-
-      const token = await res.text()
-
-      localStorage.setItem("token", token)
-
-      setStep("otp")
-
     } catch {
       setError("Invalid credentials. Please try again.")
-    } finally {
-      setIsLoggingIn(false)
     }
   }
+
 
   const handleOtpVerify = async () => {
     setError("")
@@ -137,9 +111,9 @@ export function LoginPage({
               <form onSubmit={handleLogin} className="space-y-4">
 
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">Email or Phone</Label>
+                  <Label htmlFor="email">Email or Phone</Label>
                   <Input
-                    id="login-email"
+                    id="email"
                     type="text"
                     placeholder="name@example.com or 9876543210"
                     value={email}
@@ -148,10 +122,10 @@ export function LoginPage({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">Password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
-                      id="login-password"
+                      id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={password}
