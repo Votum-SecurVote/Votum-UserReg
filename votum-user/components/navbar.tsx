@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
-import { Shield, LayoutDashboard, User, LogOut, Menu, X } from "lucide-react"
+import { ShieldCheck, LayoutDashboard, User, LogOut, Menu, X, Lock, Server } from "lucide-react"
 import { useState, useEffect } from "react"
 
 interface NavbarProps {
@@ -16,130 +16,145 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
   const [fullName, setFullName] = useState<string>("")
 
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "profile", label: "Profile", icon: User },
+    { id: "dashboard", label: "Registry Dashboard", icon: LayoutDashboard },
+    { id: "profile", label: "Citizen Profile", icon: User },
   ]
 
-  // ✅ Fetch user name from backend
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token")
-
         const res = await fetch("http://localhost:8080/api/user/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         })
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch profile")
-        }
-
+        if (!res.ok) throw new Error("Failed to fetch profile")
         const data = await res.json()
         setFullName(data.fullName)
-
       } catch (err) {
         console.error("Navbar profile fetch error:", err)
       }
     }
-
     fetchProfile()
   }, [])
 
   return (
-    <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 h-16">
-        <button
-          type="button"
-          onClick={() => onNavigate("dashboard")}
-          className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
-        >
-          <Shield className="h-7 w-7" />
-          <span className="text-lg font-bold tracking-tight">SecureVote</span>
-        </button>
+    <header className="sticky top-0 z-50 w-full flex flex-col shadow-lg">
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === item.id
-                  ? "bg-primary-foreground/20"
-                  : "hover:bg-primary-foreground/10"
-                }`}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </button>
-          ))}
+      {/* 2. Main Institutional Navbar */}
+      <div className="bg-white border-b-2 border-[#1e40af] h-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-full">
 
-          <div className="ml-3 pl-3 border-l border-primary-foreground/25 flex items-center gap-3">
-            <span className="text-sm opacity-90">
-              {fullName || "Loading..."}
-            </span>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={logout}
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground bg-transparent"
-            >
-              <LogOut className="h-4 w-4 mr-1.5" />
-              Logout
-            </Button>
-          </div>
-        </nav>
-
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          className="md:hidden p-2 rounded-md hover:bg-primary-foreground/10"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
-
-      {/* Mobile nav */}
-      {mobileOpen && (
-        <nav className="md:hidden border-t border-primary-foreground/20 px-4 py-3 space-y-1">
-          <div className="px-3 py-2 text-sm font-medium opacity-90">
-            {fullName}
-          </div>
-
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => {
-                onNavigate(item.id)
-                setMobileOpen(false)
-              }}
-              className={`flex items-center gap-3 w-full px-3 py-3 rounded-md text-sm font-medium transition-colors min-h-[48px] ${currentPage === item.id
-                  ? "bg-primary-foreground/20"
-                  : "hover:bg-primary-foreground/10"
-                }`}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.label}
-            </button>
-          ))}
-
+          {/* Branding */}
           <button
             type="button"
-            onClick={() => {
-              logout()
-              setMobileOpen(false)
-            }}
-            className="flex items-center gap-3 w-full px-3 py-3 rounded-md text-sm font-medium hover:bg-primary-foreground/10 min-h-[48px]"
+            onClick={() => onNavigate("dashboard")}
+            className="flex flex-col items-start group transition-all"
           >
-            <LogOut className="h-5 w-5" />
-            Logout
+            <div className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-[#1e40af]" />
+              <span className="text-xl font-black uppercase tracking-tighter text-[#0f172a]">VOTUM</span>
+            </div>
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#64748b] ml-7">user</span>
           </button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center h-full gap-8">
+            <div className="flex items-center h-full gap-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onNavigate(item.id)}
+                  className={`relative flex items-center gap-2 px-4 h-20 text-[11px] font-black uppercase tracking-widest transition-all ${currentPage === item.id
+                    ? "text-[#1e40af]"
+                    : "text-[#64748b] hover:text-[#1e40af] hover:bg-[#f8fafc]"
+                    }`}
+                >
+                  <item.icon className={`h-4 w-4 ${currentPage === item.id ? "text-[#1e40af]" : "text-[#94a3b8]"}`} />
+                  {item.label}
+                  {/* Institutional Indicator */}
+                  {currentPage === item.id && (
+                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-[#1e40af]" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <div className="h-10 w-px bg-[#e2e8f0]" />
+
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#94a3b8]">Authorized User</span>
+                <span className="text-sm font-bold text-[#1e293b]">
+                  {fullName || "Verification Required"}
+                </span>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="rounded-none border-2 border-[#1e293b] text-[#1e293b] font-black uppercase tracking-widest text-[10px] hover:bg-[#1e293b] hover:text-white px-4 h-10 transition-all"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Secure Logout
+              </Button>
+            </div>
+          </nav>
+
+          {/* Mobile Toggle */}
+          <button
+            type="button"
+            className="md:hidden p-3 bg-[#f8fafc] border border-[#e2e8f0] text-[#1e40af]"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      {mobileOpen && (
+        <nav className="md:hidden bg-white border-b border-[#e2e8f0] animate-in slide-in-from-top duration-200">
+          <div className="px-6 py-4 bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#94a3b8]">Registry Profile</span>
+              <span className="text-sm font-bold text-[#1e293b]">{fullName}</span>
+            </div>
+            <Server className="h-4 w-4 text-[#cbd5e1]" />
+          </div>
+
+          <div className="p-4 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  onNavigate(item.id)
+                  setMobileOpen(false)
+                }}
+                className={`flex items-center gap-4 w-full px-4 py-4 text-xs font-black uppercase tracking-widest transition-colors ${currentPage === item.id
+                  ? "bg-[#eff6ff] text-[#1e40af] border-l-4 border-[#1e40af]"
+                  : "text-[#64748b] hover:bg-[#f8fafc]"
+                  }`}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => {
+                logout()
+                setMobileOpen(false)
+              }}
+              className="flex items-center gap-4 w-full px-4 py-4 text-xs font-black uppercase tracking-widest text-[#991b1b] hover:bg-red-50 mt-4 border-t border-red-100"
+            >
+              <LogOut className="h-5 w-5" />
+              Secure Logout
+            </button>
+          </div>
         </nav>
       )}
     </header>

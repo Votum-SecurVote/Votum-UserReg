@@ -1,38 +1,50 @@
 "use client"
 
+import React from "react"
 import { useAuth } from "@/context/auth-context"
 import { mockElections } from "@/lib/mock-data"
 import type { Election } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, Calendar, Clock, ChevronRight, Vote } from "lucide-react"
+import {
+  ShieldAlert,
+  Calendar,
+  Clock,
+  ChevronRight,
+  Vote,
+  ShieldCheck,
+  FileText,
+  User
+} from "lucide-react"
 
 interface DashboardPageProps {
   onViewElection: (election: Election) => void
 }
 
-function StatusBadge({ status }: { status: string }) {
+/* --- Institutional Status Stamp --- */
+function StatusStamp({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    APPROVED: "bg-accent text-accent-foreground",
-    PENDING: "bg-[hsl(38,92%,50%)] text-primary-foreground",
-    REJECTED: "bg-destructive text-destructive-foreground",
+    APPROVED: "border-emerald-700 text-emerald-700 bg-emerald-50",
+    PENDING: "border-amber-600 text-amber-600 bg-amber-50",
+    REJECTED: "border-red-700 text-red-700 bg-red-50",
   }
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${styles[status] || "bg-muted text-muted-foreground"}`}>
+    <span className={`inline-flex items-center uppercase tracking-widest text-[10px] font-black border-2 px-3 py-1 ${styles[status] || "border-slate-400 text-slate-400"}`}>
       {status}
     </span>
   )
 }
 
+/* --- Formal Election Badge --- */
 function ElectionStatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    Active: "bg-accent text-accent-foreground",
-    Upcoming: "bg-primary text-primary-foreground",
-    Closed: "bg-muted text-muted-foreground",
+    Active: "bg-[#1e40af] text-white",
+    Upcoming: "bg-slate-200 text-slate-700",
+    Closed: "bg-slate-800 text-white",
   }
   return (
-    <Badge className={`${styles[status] || "bg-muted"} hover:opacity-90`}>
+    <Badge className={`rounded-none uppercase text-[10px] font-black tracking-tighter ${styles[status] || "bg-muted"} hover:opacity-100`}>
       {status}
     </Badge>
   )
@@ -54,132 +66,148 @@ export function DashboardPage({ onViewElection }: DashboardPageProps) {
   const isApproved = user.status === "APPROVED"
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Welcome header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Welcome, {user.fullName}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Your e-voting dashboard
-          </p>
-        </div>
-        <StatusBadge status={user.status} />
-      </div>
+    <div className="min-h-screen flex flex-col bg-[#f1f5f9] font-sans">
 
-      {/* Account pending alert */}
-      {!isApproved && (
-        <div className="flex items-start gap-3 p-4 mb-6 rounded-lg bg-[hsl(38,92%,50%)]/10 border border-[hsl(38,92%,50%)]/30">
-          <AlertCircle className="h-5 w-5 text-[hsl(38,92%,50%)] mt-0.5 shrink-0" />
+      {/* 2. Scrollable Dashboard Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-6 py-10">
+
+          {/* Welcome Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b-4 border-[#1e40af] pb-8">
+            <div className="flex items-center gap-5">
+              <div className="h-16 w-16 bg-white border-2 border-[#cbd5e1] flex items-center justify-center">
+                <User className="h-10 w-10 text-[#64748b]" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black text-[#0f172a] uppercase tracking-tight">
+                  {user.fullName}
+                </h1>
+                <p className="text-[#64748b] text-xs font-bold uppercase tracking-widest flex items-center gap-2 mt-1">
+                  <FileText className="h-3 w-3" /> Registered Citizen Profile
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col items-start md:items-end gap-2">
+              <span className="text-[10px] font-black uppercase text-slate-400">Account Authorization</span>
+              <StatusStamp status={user.status} />
+            </div>
+          </div>
+
+          {/* Account Pending Alert - Redesigned as a Formal Notice */}
+          {!isApproved && (
+            <div className="flex items-start gap-4 p-6 mb-10 bg-amber-50 border-2 border-amber-200">
+              <ShieldAlert className="h-6 w-6 text-amber-600 mt-1 shrink-0" />
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-tight text-amber-900">Official Notice: Verification Required</h3>
+                <p className="text-sm text-amber-800/80 mt-1 font-medium leading-relaxed">
+                  Your identity credentials are currently under review by the Bureau.
+                  In accordance with national security protocols, your voting privileges
+                  will remain restricted until identity verification is finalized.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+            {[
+              { label: "Active Polls", count: "Active", icon: <Vote className="text-[#1e40af]" />, bg: "bg-white" },
+              { label: "Upcoming Records", count: "Upcoming", icon: <Calendar className="text-slate-600" />, bg: "bg-white" },
+              { label: "Archived Results", count: "Closed", icon: <Clock className="text-slate-400" />, bg: "bg-slate-50" },
+            ].map((stat, i) => (
+              <Card key={i} className={`rounded-none border-2 border-slate-200 shadow-none ${stat.bg}`}>
+                <CardContent className="flex items-center gap-5 p-6">
+                  <div className="h-12 w-12 border border-slate-100 flex items-center justify-center shrink-0 bg-slate-50">
+                    {stat.icon}
+                  </div>
+                  <div>
+                    <p className="text-3xl font-black text-[#0f172a]">
+                      {mockElections.filter((e) => e.status === stat.count).length}
+                    </p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{stat.label}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Election Registry List */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Account Pending Approval</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Your account is currently under review. You will be able to participate in elections once your identity is verified and account is approved.
-            </p>
+            <div className="flex items-center gap-4 mb-6">
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">Election Registry</h2>
+              <div className="flex-1 h-px bg-slate-200"></div>
+            </div>
+
+            <div className="space-y-6">
+              {mockElections.map((election) => (
+                <Card key={election.id} className="rounded-none border-2 border-slate-200 shadow-none hover:border-[#1e40af] transition-colors bg-white">
+                  <CardHeader className="pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-black uppercase tracking-tight text-[#0f172a]">
+                          {election.title}
+                        </CardTitle>
+                        <CardDescription className="mt-2 text-slate-600 font-medium leading-relaxed">
+                          {election.description}
+                        </CardDescription>
+                      </div>
+                      <ElectionStatusBadge status={election.status} />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-t border-slate-100 pt-6">
+                      <div className="flex items-center gap-6 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <span className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-[#1e40af]" />
+                          Starts: {formatDate(election.startDate)}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-[#1e40af]" />
+                          Ends: {formatDate(election.endDate)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        {election.status === "Active" && isApproved && (
+                          <Button
+                            className="rounded-none bg-[#1e40af] text-white hover:bg-[#1e3a8a] px-8 h-10 font-black uppercase tracking-widest shadow-md"
+                            onClick={() => onViewElection(election)}
+                          >
+                            <Vote className="h-4 w-4 mr-2" />
+                            Cast Digital Ballot
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          className="rounded-none border-2 border-slate-200 text-slate-700 font-black uppercase tracking-widest text-[10px] px-6 h-10 hover:bg-slate-50"
+                          onClick={() => onViewElection(election)}
+                        >
+                          Review Specification
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
-      )}
-
-      {/* Stats bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <CardContent className="flex items-center gap-4 p-4">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Vote className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">
-                {mockElections.filter((e) => e.status === "Active").length}
-              </p>
-              <p className="text-xs text-muted-foreground">Active Elections</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-4">
-            <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-              <Calendar className="h-5 w-5 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">
-                {mockElections.filter((e) => e.status === "Upcoming").length}
-              </p>
-              <p className="text-xs text-muted-foreground">Upcoming Elections</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-4">
-            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">
-                {mockElections.filter((e) => e.status === "Closed").length}
-              </p>
-              <p className="text-xs text-muted-foreground">Closed Elections</p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Elections list */}
-      <div>
-        <h2 className="text-lg font-semibold text-foreground mb-4">Elections</h2>
-        <div className="space-y-4">
-          {mockElections.map((election) => (
-            <Card key={election.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <CardTitle className="text-base">{election.title}</CardTitle>
-                    <CardDescription className="mt-1 line-clamp-2">
-                      {election.description}
-                    </CardDescription>
-                  </div>
-                  <ElectionStatusBadge status={election.status} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {formatDate(election.startDate)}
-                    </span>
-                    <span className="text-border">|</span>
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5" />
-                      {formatDate(election.endDate)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {election.status === "Active" && isApproved && (
-                      <Button
-                        size="sm"
-                        className="bg-accent text-accent-foreground hover:bg-accent/90 h-9"
-                        onClick={() => onViewElection(election)}
-                      >
-                        Proceed to Vote
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onViewElection(election)}
-                      className="h-9"
-                    >
-                      View Details
-                      <ChevronRight className="h-3.5 w-3.5 ml-1" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      {/* Footer Branding */}
+      <footer className="bg-white border-t border-slate-200 py-6 px-10 shrink-0">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            Secure Digital Voting Infrastructure © 2026
+          </p>
+          <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest text-[#1e40af]">
+            <a href="#" className="hover:underline">Privacy Policy</a>
+            <a href="#" className="hover:underline">Terms of Use</a>
+            <a href="#" className="hover:underline">Contact Bureau</a>
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }
