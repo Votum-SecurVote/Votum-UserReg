@@ -10,7 +10,10 @@ describe('LoginPage', () => {
   const renderLoginPage = () => {
     return render(
       <AuthProvider>
-        <LoginPage onNavigateToRegister={mockNavigateRegister} />
+        <LoginPage 
+          onNavigateToRegister={mockNavigateRegister} 
+          onLoginSuccess={jest.fn()} 
+        />
       </AuthProvider>
     )
   }

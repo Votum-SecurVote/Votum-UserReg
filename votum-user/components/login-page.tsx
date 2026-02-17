@@ -18,7 +18,7 @@ export function LoginPage({
   onNavigateToRegister,
   onLoginSuccess,
 }: LoginPageProps) {
-  const { verifyOtp, isLoading } = useAuth()
+  const { verifyOtp, isLoading: isOtpLoading } = useAuth()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -26,6 +26,9 @@ export function LoginPage({
   const [step, setStep] = useState<"credentials" | "otp">("credentials")
   const [otp, setOtp] = useState("")
   const [error, setError] = useState("")
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+
+  const isLoading = isOtpLoading || isLoggingIn
 
   const validateEmail = (val: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || /^\d{10}$/.test(val)
@@ -33,6 +36,18 @@ export function LoginPage({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    if (!email) {
+      setError("Email or phone is required.")
+      return
+    }
+
+    if (!password) {
+      setError("Password is required.")
+      return
+    }
+
+    setIsLoggingIn(true)
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/login", {
@@ -58,9 +73,10 @@ export function LoginPage({
 
     } catch {
       setError("Invalid credentials. Please try again.")
+    } finally {
+      setIsLoggingIn(false)
     }
   }
-
 
   const handleOtpVerify = async () => {
     setError("")
@@ -121,8 +137,9 @@ export function LoginPage({
               <form onSubmit={handleLogin} className="space-y-4">
 
                 <div className="space-y-2">
-                  <Label>Email or Phone</Label>
+                  <Label htmlFor="login-email">Email or Phone</Label>
                   <Input
+                    id="login-email"
                     type="text"
                     placeholder="name@example.com or 9876543210"
                     value={email}
@@ -131,9 +148,10 @@ export function LoginPage({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Password</Label>
+                  <Label htmlFor="login-password">Password</Label>
                   <div className="relative">
                     <Input
+                      id="login-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={password}

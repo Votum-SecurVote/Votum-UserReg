@@ -38,6 +38,37 @@ jest.mock('next/navigation', () => ({
     }),
 }))
 
+// Mock global fetch
+// Mock global fetch
+const mockFetch = jest.fn((url: string | URL) => {
+    const urlString = url.toString();
+    if (urlString.includes("/profile")) {
+        return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+                fullName: "Rajesh Kumar",
+                email: "rajesh.kumar@email.com",
+                phone: "9876543210",
+                dob: "1990-05-15",
+                gender: "Male",
+                address: "42, MG Road, Sector 12, New Delhi, 110001",
+                status: "APPROVED"
+            }),
+            text: () => Promise.resolve("mock-token"),
+        });
+    }
+    return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve("mock-token"),
+    });
+}) as jest.Mock;
+
+global.fetch = mockFetch;
+if (typeof window !== 'undefined') {
+    window.fetch = mockFetch;
+}
+
 // Mock Pointer Events for Radix UI
 if (typeof window !== 'undefined') {
     global.ResizeObserver = class ResizeObserver {
