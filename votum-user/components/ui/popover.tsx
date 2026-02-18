@@ -1,3 +1,8 @@
+/**
+ * Popover Component.
+ * Displays rich content in a portal, triggered by a button.
+ * Built on top of Radix UI Popover.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import * as PopoverPrimitive from '@radix-ui/react-popover'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Popover component.
+ */
 const Popover = PopoverPrimitive.Root
 
 const PopoverTrigger = PopoverPrimitive.Trigger

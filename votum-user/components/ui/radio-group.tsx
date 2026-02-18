@@ -1,3 +1,8 @@
+/**
+ * Radio Group Component.
+ * A set of checkable buttons—known as radio buttons—where no more than one of the buttons can be checked at a time.
+ * Built on top of Radix UI Radio Group.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { Circle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Radio Group component.
+ */
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>

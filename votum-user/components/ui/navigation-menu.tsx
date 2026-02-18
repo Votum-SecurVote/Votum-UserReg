@@ -1,3 +1,8 @@
+/**
+ * Navigation Menu Component.
+ * A collection of links for navigating websites.
+ * Built on top of Radix UI Navigation Menu.
+ */
 import * as React from 'react'
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
 import { cva } from 'class-variance-authority'
@@ -5,6 +10,9 @@ import { ChevronDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Navigation Menu component.
+ */
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>

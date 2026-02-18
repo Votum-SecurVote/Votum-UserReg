@@ -1,3 +1,8 @@
+/**
+ * Toast Component.
+ * A succinct message that is displayed temporarily.
+ * Built on top of Radix UI Toast.
+ */
 'use client'
 
 import * as React from 'react'
@@ -7,6 +12,9 @@ import { X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Toast Provider component.
+ */
 const ToastProvider = ToastPrimitives.Provider
 
 const ToastViewport = React.forwardRef<

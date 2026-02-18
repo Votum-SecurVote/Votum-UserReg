@@ -1,3 +1,7 @@
+/**
+ * Sidebar Component.
+ * A composable, themeable and accessible sidebar component.
+ */
 'use client'
 
 import * as React from 'react'
@@ -47,6 +51,10 @@ function useSidebar() {
   return context
 }
 
+/**
+ * Sidebar Provider component.
+ * Manages the state of the sidebar.
+ */
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {

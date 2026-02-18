@@ -1,3 +1,7 @@
+/**
+ * Toaster Component.
+ * Manages the presentation of toasts.
+ */
 'use client'
 
 import { useToast } from '@/hooks/use-toast'
@@ -10,6 +14,9 @@ import {
   ToastViewport,
 } from '@/components/ui/toast'
 
+/**
+ * Toaster component.
+ */
 export function Toaster() {
   const { toasts } = useToast()
 

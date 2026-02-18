@@ -1,3 +1,8 @@
+/**
+ * Toggle Group Component.
+ * A set of two-state buttons that can be toggled on or off.
+ * Built on top of Radix UI Toggle Group.
+ */
 'use client'
 
 import * as React from 'react'
@@ -14,6 +19,9 @@ const ToggleGroupContext = React.createContext<
   variant: 'default',
 })
 
+/**
+ * Root Toggle Group component.
+ */
 const ToggleGroup = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &

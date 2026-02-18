@@ -1,3 +1,8 @@
+/**
+ * Select Component.
+ * Displays a list of options for the user to pick from—triggered by a button.
+ * Built on top of Radix UI Select.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Select component.
+ */
 const Select = SelectPrimitive.Root
 
 const SelectGroup = SelectPrimitive.Group

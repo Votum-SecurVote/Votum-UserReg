@@ -1,3 +1,8 @@
+/**
+ * Resizable Component.
+ * Accessible resizable panel groups and layouts with keyboard support.
+ * Built on top of react-resizable-panels.
+ */
 'use client'
 
 import { GripVertical } from 'lucide-react'
@@ -5,6 +10,9 @@ import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'reac
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Resizable Panel Group component.
+ */
 const ResizablePanelGroup = ({
   className,
   ...props

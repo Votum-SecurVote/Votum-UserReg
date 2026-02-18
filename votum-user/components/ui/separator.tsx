@@ -1,3 +1,8 @@
+/**
+ * Separator Component.
+ * Visually or semantically separates content.
+ * Built on top of Radix UI Separator.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import * as SeparatorPrimitive from '@radix-ui/react-separator'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Separator component.
+ */
 const Separator = React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>

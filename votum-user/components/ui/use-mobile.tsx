@@ -1,7 +1,14 @@
+/**
+ * Use Mobile Hook.
+ * Detects if the screen size matches a mobile breakpoint.
+ */
 import * as React from 'react'
 
 const MOBILE_BREAKPOINT = 768
 
+/**
+ * useIsMobile hook.
+ */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 

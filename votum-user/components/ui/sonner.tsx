@@ -1,3 +1,8 @@
+/**
+ * Sonner Component.
+ * An opinionated toast component for React.
+ * Built on top of Sonner.
+ */
 'use client'
 
 import { useTheme } from 'next-themes'
@@ -5,6 +10,9 @@ import { Toaster as Sonner } from 'sonner'
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+/**
+ * Toaster component.
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme()
 

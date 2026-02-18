@@ -1,3 +1,8 @@
+/**
+ * Slider Component.
+ * An input where the user selects a value from within a given range.
+ * Built on top of Radix UI Slider.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import * as SliderPrimitive from '@radix-ui/react-slider'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Slider component.
+ */
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>

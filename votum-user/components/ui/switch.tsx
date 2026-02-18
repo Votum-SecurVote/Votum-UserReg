@@ -1,3 +1,8 @@
+/**
+ * Switch Component.
+ * A control that allows the user to toggle between checked and not checked.
+ * Built on top of Radix UI Switch.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import * as SwitchPrimitives from '@radix-ui/react-switch'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Switch component.
+ */
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>

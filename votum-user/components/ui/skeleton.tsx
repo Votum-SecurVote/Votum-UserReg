@@ -1,5 +1,12 @@
+/**
+ * Skeleton Component.
+ * Use to show a placeholder while content is loading.
+ */
 import { cn } from '@/lib/utils'
 
+/**
+ * Skeleton component.
+ */
 function Skeleton({
   className,
   ...props

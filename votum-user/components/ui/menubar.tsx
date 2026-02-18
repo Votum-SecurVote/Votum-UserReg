@@ -1,3 +1,8 @@
+/**
+ * Menubar Component.
+ * A visually persistent menu common in desktop applications that provides quick access to a consistent set of commands.
+ * Built on top of Radix UI Menubar.
+ */
 'use client'
 
 import * as React from 'react'
@@ -16,6 +21,9 @@ const MenubarSub = MenubarPrimitive.Sub
 
 const MenubarRadioGroup = MenubarPrimitive.RadioGroup
 
+/**
+ * Root Menubar component.
+ */
 const Menubar = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Root>

@@ -1,7 +1,14 @@
+/**
+ * Table Component.
+ * A responsive table component.
+ */
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Table component.
+ */
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>

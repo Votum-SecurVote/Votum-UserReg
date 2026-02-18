@@ -1,3 +1,8 @@
+/**
+ * Tooltip Component.
+ * A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+ * Built on top of Radix UI Tooltip.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Tooltip Provider component.
+ */
 const TooltipProvider = TooltipPrimitive.Provider
 
 const Tooltip = TooltipPrimitive.Root

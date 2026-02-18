@@ -1,3 +1,8 @@
+/**
+ * Toggle Component.
+ * A two-state button that can be either on or off.
+ * Built on top of Radix UI Toggle.
+ */
 'use client'
 
 import * as React from 'react'
@@ -28,6 +33,9 @@ const toggleVariants = cva(
   },
 )
 
+/**
+ * Root Toggle component.
+ */
 const Toggle = React.forwardRef<
   React.ElementRef<typeof TogglePrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &

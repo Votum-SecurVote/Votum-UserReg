@@ -1,7 +1,14 @@
+/**
+ * Textarea Component.
+ * Displays a form textarea or a component that looks like a textarea.
+ */
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Textarea element.
+ */
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   React.ComponentProps<'textarea'>

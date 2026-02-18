@@ -1,3 +1,8 @@
+/**
+ * Sheet Component.
+ * Extends the Dialog component to display content that complements the main screen content.
+ * Built on top of Radix UI Dialog.
+ */
 'use client'
 
 import * as React from 'react'
@@ -7,6 +12,9 @@ import { X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Sheet component.
+ */
 const Sheet = SheetPrimitive.Root
 
 const SheetTrigger = SheetPrimitive.Trigger
