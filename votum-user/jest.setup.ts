@@ -1,3 +1,8 @@
+/**
+ * Jest Setup File.
+ * Configures the testing environment by mocking browser APIs and global objects
+ * that are not available in the JSDOM environment (e.g., matchMedia, ResizeObserver).
+ */
 import '@testing-library/jest-dom'
 
 

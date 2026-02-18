@@ -1,7 +1,14 @@
+/**
+ * Global Type Definitions.
+ * Defines interfaces and types for Users, Elections, and Candidates.
+ */
 export type UserStatus = "APPROVED" | "PENDING" | "REJECTED"
 export type UserRole = "voter" | "admin"
 export type ElectionStatus = "Upcoming" | "Active" | "Closed"
 
+/**
+ * Represents a registered user in the system.
+ */
 export interface User {
   id: string
   fullName: string
@@ -16,6 +23,9 @@ export interface User {
   profilePhoto?: string
 }
 
+/**
+ * Represents an election event.
+ */
 export interface Election {
 
   id: string

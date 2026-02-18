@@ -1,3 +1,8 @@
+/**
+ * Main Application Controller.
+ * Manages high-level navigation between Login, Register, Dashboard, and other core pages.
+ * Acts as a Single Page Application (SPA) shell within the Next.js page structure.
+ */
 "use client"
 
 import { useState } from "react"
@@ -17,6 +22,10 @@ type AppPage =
   | "election"
   | "profile"
 
+/**
+ * Main page component.
+ * Handles routing logic based on authentication state and user selection.
+ */
 export default function Page() {
   const { isAuthenticated } = useAuth()
   const [currentPage, setCurrentPage] = useState<AppPage>("login")
@@ -25,6 +34,7 @@ export default function Page() {
 
   const protectedPages: AppPage[] = ["dashboard", "election", "profile"]
 
+  // Determine the active page. Redirect unauthenticated users to login if they try to access protected pages.
   const activePage =
     !isAuthenticated && protectedPages.includes(currentPage)
       ? "login"
@@ -43,7 +53,7 @@ export default function Page() {
     return (
       <LoginPage
         onNavigateToRegister={() => setCurrentPage("register")}
-        onLoginSuccess={() => setCurrentPage("dashboard")}  // ✅ THIS FIXES IT
+        onLoginSuccess={() => setCurrentPage("dashboard")}  
       />
     )
   }

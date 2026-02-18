@@ -1,3 +1,8 @@
+/**
+ * Authentication Context.
+ * specific context provider that manages user authentication state,
+ * including login, registration, OTP verification, and session timeouts.
+ */
 "use client"
 
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react"
@@ -21,6 +26,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const INACTIVITY_TIMEOUT = 5 * 60 * 1000 // 5 minutes
 const WARNING_BEFORE = 60 * 1000 // 1 minute before timeout
 
+/**
+ * AuthProvider component to wrap the application and provide auth state.
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [registeredUser, setRegisteredUser] = useState<User | null>(null)
@@ -29,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const warningRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Logs out the user and clears session data.
   const logout = useCallback(() => {
     setUser(null)
     setShowTimeoutWarning(false)
@@ -67,6 +76,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, resetInactivityTimer])
 
+  /**
+   * Authenticates the user against the backend API.
+   * On success, sets the user state and stores the token.
+   */
   const login = useCallback(async (data: Record<string, unknown>) => {
     setIsLoading(true)
     try {
@@ -97,6 +110,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 
+  /**
+   * Simulates OTP verification.
+   * In a real app, this would verify the code with the backend.
+   */
   const verifyOtp = useCallback(async (_otp: string) => {
     setIsLoading(true)
     await new Promise((r) => setTimeout(r, 1000))
@@ -105,6 +122,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return true
   }, [])
 
+  /**
+   * Registers a new user.
+   * Sends user data and file uploads (photo, Aadhaar) to the backend.
+   */
   const register = useCallback(async (data: Record<string, unknown>) => {
     try {
       setIsLoading(true)

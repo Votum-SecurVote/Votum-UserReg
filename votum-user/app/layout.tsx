@@ -1,3 +1,7 @@
+/**
+ * Root Layout.
+ * Defines the global structure of the application, including fonts and global providers (AuthProvider).
+ */
 import React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
@@ -18,6 +22,10 @@ export const viewport: Viewport = {
   userScalable: true,
 }
 
+/**
+ * The root layout component wraps all pages in the application.
+ * It applies the global font and auth context.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

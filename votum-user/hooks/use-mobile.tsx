@@ -1,7 +1,15 @@
+/**
+ * Mobile Detection Hook.
+ * Provides a way to programmatically check if the viewport is mobile-sized.
+ */
 import * as React from 'react'
 
 const MOBILE_BREAKPOINT = 768
 
+/**
+ * Custom hook that returns `true` if the window width is below the mobile breakpoint (768px).
+ * Listens for window resize events.
+ */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 

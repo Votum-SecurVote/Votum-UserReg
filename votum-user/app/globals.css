@@ -1,3 +1,7 @@
+/*
+ * Global Stylesheet.
+ * Imports Tailwind CSS and defines global CSS variables for theming (light/dark mode colors).
+ */
 @import "tailwindcss";
 
 @theme {

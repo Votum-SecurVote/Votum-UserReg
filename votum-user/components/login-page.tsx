@@ -1,3 +1,7 @@
+/**
+ * Login Page.
+ * Handles user authentication via email/password and a simulated Multi-Factor Authentication (OTP) step.
+ */
 "use client"
 
 import React, { useState } from "react"
@@ -14,6 +18,10 @@ interface LoginPageProps {
   onLoginSuccess: () => void
 }
 
+/**
+ * Login Component.
+ * Manages the login form state, including switching between credentials input and OTP verification.
+ */
 export function LoginPage({
   onNavigateToRegister,
   onLoginSuccess,
@@ -27,6 +35,7 @@ export function LoginPage({
   const [otp, setOtp] = useState("")
   const [error, setError] = useState("")
 
+  // Handles initial credential submission.
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -43,6 +52,7 @@ export function LoginPage({
     }
   }
 
+  // Handles OTP verification submission.
   const handleOtpVerify = async () => {
     setError("")
     if (otp.length !== 6) {

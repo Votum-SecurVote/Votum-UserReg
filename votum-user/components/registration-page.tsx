@@ -1,3 +1,8 @@
+/**
+ * Registration Page.
+ * A comprehensive multi-step form for new user registration.
+ * Includes personal details, identity document uploads, and live face capture via webcam.
+ */
 "use client"
 
 import React from "react"
@@ -43,6 +48,10 @@ interface FormErrors {
 }
 
 
+/**
+ * Password Strength Indicator.
+ * Visualizes the strength of the entered password based on complexity rules.
+ */
 function PasswordStrengthBar({ password }: { password: string }) {
   const getStrength = (pw: string) => {
     let score = 0
@@ -85,6 +94,10 @@ function PasswordStrengthBar({ password }: { password: string }) {
   )
 }
 
+/**
+ * Registration Page Component.
+ * Manages form state, validation, and API submission for user registration.
+ */
 export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: RegistrationPageProps) {
   const { register, isLoading } = useAuth()
   const [step, setStep] = useState(1)
@@ -142,6 +155,7 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     }
   }, [cameraActive])
 
+  // Initializes the webcam stream for live face capture.
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -158,6 +172,7 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     }
   }, [])
 
+  // Captures the current frame from the video stream onto a canvas.
   const capturePhoto = useCallback(() => {
     if (!videoRef.current) return
     const canvas = document.createElement("canvas")
@@ -175,6 +190,7 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     setCameraActive(false)
   }, [])
 
+  // Validates Step 1: Personal Information fields.
   const validateStep1 = (): boolean => {
     const errs: FormErrors = {}
     if (!form.fullName.trim()) errs.fullName = "Full name is required."
@@ -194,6 +210,7 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     return Object.keys(errs).length === 0
   }
 
+  // Validates Step 2: Identity Documents and Face Capture.
   const validateStep2 = (): boolean => {
     const errs: FormErrors = {}
     if (!form.aadhaarFile && !form.profilePhoto && !form.capturedPhoto) {
@@ -204,6 +221,7 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     return Object.keys(errs).length === 0
   }
 
+  // Validates Step 3: Password and Terms acceptance.
   const validateStep3 = (): boolean => {
     const errs: FormErrors = {}
     if (!form.password) errs.password = "Password is required."
@@ -233,6 +251,7 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     setStep((s) => Math.max(1, s - 1))
   }
 
+  // Handles final form submission to the backend.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateStep3()) return

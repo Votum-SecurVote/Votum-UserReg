@@ -1,3 +1,8 @@
+/**
+ * Profile Page.
+ * Displays the authenticated user's digital dossier, including personal details,
+ * verification status, and secure document access.
+ */
 "use client"
 
 import React, { useEffect, useState } from "react"
@@ -24,6 +29,10 @@ function VerificationStamp({ status }: { status: string }) {
   )
 }
 
+/**
+ * Profile Page Component.
+ * Fetches secure user data and presents it in an official dossier format.
+ */
 export function ProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)

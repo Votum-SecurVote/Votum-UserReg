@@ -1,3 +1,7 @@
+/**
+ * Jest Configuration.
+ * Sets up the testing environment for Next.js, including coverage and module mapping.
+ */
 import type { Config } from 'jest'
 import nextJest from 'next/jest.js'
 

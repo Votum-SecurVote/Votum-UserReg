@@ -1,3 +1,7 @@
+/**
+ * Election Details Page.
+ * Displays comprehensive information about a specific election, including rules, candidates, and voting status.
+ */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -14,6 +18,10 @@ interface ElectionDetailsProps {
   onBack: () => void
 }
 
+/**
+ * Countdown Timer Component.
+ * Shows a real-time countdown to the election end date.
+ */
 function CountdownTimer({ endDate }: { endDate: string }) {
   const [timeLeft, setTimeLeft] = useState("")
 
@@ -52,6 +60,10 @@ function formatDate(dateStr: string) {
   })
 }
 
+/**
+ * Main component for viewing election details and casting votes.
+ * Handles the voting process and displays confirmation upon success.
+ */
 export function ElectionDetailsPage({ election, onBack }: ElectionDetailsProps) {
   const { user } = useAuth()
   const [voted, setVoted] = useState(false)

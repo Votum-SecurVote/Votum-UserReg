@@ -1,3 +1,7 @@
+/**
+ * Mock Data.
+ * Static data used for development, testing, and prototyping purposes.
+ */
 import type { User, Election } from "./types"
 
 export const mockUser: User = {

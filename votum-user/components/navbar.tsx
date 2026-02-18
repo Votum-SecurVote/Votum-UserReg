@@ -1,3 +1,8 @@
+/**
+ * Navigation Bar.
+ * Global navigation component that provides access to Dashboard and Profile pages.
+ * Includes responsive mobile navigation drawer.
+ */
 "use client"
 
 import { useAuth } from "@/context/auth-context"
@@ -10,6 +15,10 @@ interface NavbarProps {
   onNavigate: (page: string) => void
 }
 
+/**
+ * Navbar Component.
+ * Fetches user profile for valid display and handles logout functionality.
+ */
 export function Navbar({ currentPage, onNavigate }: NavbarProps) {
   const { logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)

@@ -1,3 +1,7 @@
+/**
+ * Dashboard Page.
+ * The central hub for authenticated users to view their profile status and active elections.
+ */
 "use client"
 
 import React, { useEffect, useState } from "react"
@@ -41,6 +45,10 @@ interface UserProfile {
   status: string
 }
 
+/**
+ * Status Stamp Component.
+ * Displays the user's approval status (APPROVED, PENDING, REJECTED) with distinct styling.
+ */
 function StatusStamp({ status }: { status: string }) {
   const styles: Record<string, string> = {
     APPROVED: "border-emerald-700 text-emerald-700 bg-emerald-50",
@@ -70,6 +78,10 @@ interface DashboardPageProps {
   onViewElection: (election: GlobalElection) => void
 }
 
+/**
+ * Dashboard Page Component.
+ * Fetches and displays user profile and available elections.
+ */
 export function DashboardPage({ onViewElection }: DashboardPageProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [elections, setElections] = useState<Election[]>([])

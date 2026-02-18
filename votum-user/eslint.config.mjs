@@ -1,3 +1,7 @@
+/**
+ * ESLint Configuration.
+ * Defines linting rules and ignores for the project, extending Next.js recommendations.
+ */
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
