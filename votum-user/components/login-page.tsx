@@ -127,6 +127,7 @@ export function LoginPage({
                       />
                       <button
                         type="button"
+                        suppressHydrationWarning
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#1e40af]"
                       >
@@ -151,6 +152,7 @@ export function LoginPage({
                       Don't have an account?{" "}
                       <button
                         type="button"
+                        suppressHydrationWarning
                         onClick={onNavigateToRegister}
                         className="text-[#1e40af] font-black underline underline-offset-4"
                       >

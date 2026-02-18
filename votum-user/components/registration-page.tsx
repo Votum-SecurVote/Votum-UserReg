@@ -194,7 +194,20 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
   const validateStep1 = (): boolean => {
     const errs: FormErrors = {}
     if (!form.fullName.trim()) errs.fullName = "Full name is required."
-    if (!form.dob) errs.dob = "Date of birth is required."
+    if (!form.dob) {
+      errs.dob = "Date of birth is required."
+    } else {
+      const birthDate = new Date(form.dob)
+      const today = new Date()
+      let age = today.getFullYear() - birthDate.getFullYear()
+      const m = today.getMonth() - birthDate.getMonth()
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--
+      }
+      if (age < 18) {
+        errs.dob = "You must be at least 18 years old."
+      }
+    }
     if (!form.gender) errs.gender = "Gender is required."
     if (!form.address.trim()) errs.address = "Address is required."
     if (!form.email.trim()) errs.email = "Email is required."
