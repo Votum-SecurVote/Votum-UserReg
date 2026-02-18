@@ -1,3 +1,8 @@
+/**
+ * Accordion Component.
+ * A vertically stacked set of interactive headings that each reveal a section of content.
+ * Built on top of Radix UI Accordion.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { ChevronDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Accordion component.
+ */
 const Accordion = AccordionPrimitive.Root
 
 const AccordionItem = React.forwardRef<

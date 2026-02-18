@@ -1,3 +1,7 @@
+/**
+ * Chart Component.
+ * A charting library built on top of Recharts.
+ */
 'use client'
 
 import * as React from 'react'
@@ -34,6 +38,9 @@ function useChart() {
   return context
 }
 
+/**
+ * Container for the chart.
+ */
 const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> & {

@@ -1,3 +1,8 @@
+/**
+ * Dialog Component.
+ * A window overlaid on either the primary window or another dialog, rendering the content underneath inert.
+ * Built on top of Radix UI Dialog.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Dialog component.
+ */
 const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger

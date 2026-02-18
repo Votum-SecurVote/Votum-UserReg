@@ -1,7 +1,14 @@
+/**
+ * Input Component.
+ * Displays a form input field or a component that looks like an input field.
+ */
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Input element.
+ */
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
   ({ className, type, ...props }, ref) => {
     return (

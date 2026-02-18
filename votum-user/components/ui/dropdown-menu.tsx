@@ -1,3 +1,8 @@
+/**
+ * Dropdown Menu Component.
+ * Displays a menu to the user—such as a set of actions or functions—triggered by a button.
+ * Built on top of Radix UI Dropdown Menu.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { Check, ChevronRight, Circle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Dropdown Menu component.
+ */
 const DropdownMenu = DropdownMenuPrimitive.Root
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger

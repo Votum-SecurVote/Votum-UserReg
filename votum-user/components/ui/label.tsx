@@ -1,3 +1,8 @@
+/**
+ * Label Component.
+ * Renders an accessible label associated with controls.
+ * Built on top of Radix UI Label.
+ */
 'use client'
 
 import * as React from 'react'
@@ -10,6 +15,9 @@ const labelVariants = cva(
   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
 )
 
+/**
+ * Root Label component.
+ */
 const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &

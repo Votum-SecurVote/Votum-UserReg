@@ -1,3 +1,8 @@
+/**
+ * Command Component.
+ * Fast, composable, unstyled command menu for React.
+ * Built on top of cmdk.
+ */
 'use client'
 
 import * as React from 'react'
@@ -11,6 +16,9 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
+/**
+ * Root Command component.
+ */
 >(({ className, ...props }, ref) => (
   <CommandPrimitive
     ref={ref}

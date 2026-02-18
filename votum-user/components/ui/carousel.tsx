@@ -1,3 +1,7 @@
+/**
+ * Carousel Component.
+ * A motion-primitive carousel built using Embla Carousel.
+ */
 'use client'
 
 import * as React from 'react'
@@ -30,6 +34,9 @@ type CarouselContextProps = {
   canScrollNext: boolean
 } & CarouselProps
 
+/**
+ * Carousel Context to share state between components.
+ */
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
 
 function useCarousel() {

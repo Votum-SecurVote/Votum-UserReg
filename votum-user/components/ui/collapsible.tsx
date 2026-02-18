@@ -1,3 +1,8 @@
+/**
+ * Collapsible Component.
+ * An interactive component which expands/collapses a panel.
+ * Built on top of Radix UI Collapsible.
+ */
 'use client'
 
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'

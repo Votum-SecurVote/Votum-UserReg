@@ -1,3 +1,7 @@
+/**
+ * Breadcrumb Component.
+ * Displays the path to the current resource using a hierarchy of links.
+ */
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { ChevronRight, MoreHorizontal } from 'lucide-react'
@@ -9,6 +13,9 @@ const Breadcrumb = React.forwardRef<
   React.ComponentPropsWithoutRef<'nav'> & {
     separator?: React.ReactNode
   }
+/**
+ * Root Breadcrumb nav element.
+ */
 >(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />)
 Breadcrumb.displayName = 'Breadcrumb'
 

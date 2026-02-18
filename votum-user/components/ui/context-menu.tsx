@@ -1,3 +1,8 @@
+/**
+ * Context Menu Component.
+ * Displays a menu located at the pointer, triggered by a right-click.
+ * Built on top of Radix UI Context Menu.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { Check, ChevronRight, Circle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Context Menu component.
+ */
 const ContextMenu = ContextMenuPrimitive.Root
 
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger

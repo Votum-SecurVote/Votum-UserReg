@@ -1,3 +1,7 @@
+/**
+ * Alert Component.
+ * Displays a callout for user attention.
+ */
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 
@@ -19,6 +23,9 @@ const alertVariants = cva(
   },
 )
 
+/**
+ * Alert container.
+ */
 const Alert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>

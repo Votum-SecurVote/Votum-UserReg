@@ -1,3 +1,7 @@
+/**
+ * Card Component.
+ * Displays a card with header, content, and footer.
+ */
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -5,6 +9,9 @@ import { cn } from '@/lib/utils'
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
+/**
+ * Root Card container.
+ */
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}

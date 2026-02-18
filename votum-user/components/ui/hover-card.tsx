@@ -1,3 +1,8 @@
+/**
+ * Hover Card Component.
+ * For sighted users to preview content available behind a link.
+ * Built on top of Radix UI Hover Card.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import * as HoverCardPrimitive from '@radix-ui/react-hover-card'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Hover Card component.
+ */
 const HoverCard = HoverCardPrimitive.Root
 
 const HoverCardTrigger = HoverCardPrimitive.Trigger

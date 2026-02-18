@@ -1,3 +1,7 @@
+/**
+ * Button Component.
+ * Interactive button with multiple variants (default, destructive, outline, etc.).
+ */
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -40,6 +44,9 @@ export interface ButtonProps
   asChild?: boolean
 }
 
+/**
+ * Button element supporting polymorphism via `asChild`.
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'

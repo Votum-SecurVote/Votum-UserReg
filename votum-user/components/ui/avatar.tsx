@@ -1,3 +1,8 @@
+/**
+ * Avatar Component.
+ * An image element with a fallback for representing the user.
+ * Built on top of Radix UI Avatar.
+ */
 'use client'
 
 import * as React from 'react'
@@ -8,6 +13,9 @@ import { cn } from '@/lib/utils'
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+/**
+ * Root Avatar component.
+ */
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Root
     ref={ref}

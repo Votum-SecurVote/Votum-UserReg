@@ -1,3 +1,8 @@
+/**
+ * Calendar Component.
+ * A date field component that allows users to enter and edit date.
+ * Built on top of React DayPicker.
+ */
 'use client'
 
 import * as React from 'react'
@@ -9,6 +14,9 @@ import { buttonVariants } from '@/components/ui/button'
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
+/**
+ * Calendar element.
+ */
 function Calendar({
   className,
   classNames,

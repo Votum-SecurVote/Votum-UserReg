@@ -1,3 +1,8 @@
+/**
+ * Input OTP Component.
+ * Accessible one-time password input component.
+ * Built on top of input-otp.
+ */
 'use client'
 
 import * as React from 'react'
@@ -6,6 +11,9 @@ import { Dot } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Input OTP component.
+ */
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
   React.ComponentPropsWithoutRef<typeof OTPInput>

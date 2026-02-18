@@ -1,3 +1,8 @@
+/**
+ * Drawer Component.
+ * A drawer component for React.
+ * Built on top of Vaul.
+ */
 'use client'
 
 import * as React from 'react'
@@ -5,6 +10,9 @@ import { Drawer as DrawerPrimitive } from 'vaul'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * Root Drawer component.
+ */
 const Drawer = ({
   shouldScaleBackground = true,
   ...props

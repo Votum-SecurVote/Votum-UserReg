@@ -1,3 +1,8 @@
+/**
+ * Checkbox Component.
+ * A control that allows the user to toggle between checked and not checked.
+ * Built on top of Radix UI Checkbox.
+ */
 'use client'
 
 import * as React from 'react'
@@ -9,6 +14,9 @@ import { cn } from '@/lib/utils'
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+/**
+ * Root Checkbox component.
+ */
 >(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}

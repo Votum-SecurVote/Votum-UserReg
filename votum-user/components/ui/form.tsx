@@ -1,3 +1,7 @@
+/**
+ * Form Component.
+ * Building forms with React Hook Form and Zod.
+ */
 'use client'
 
 import * as React from 'react'
@@ -15,6 +19,9 @@ import {
 import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
 
+/**
+ * Root Form component.
+ */
 const Form = FormProvider
 
 type FormFieldContextValue<
