@@ -70,27 +70,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (data: Record<string, unknown>) => {
     setIsLoading(true)
     try {
-        const res = await fetch("http://localhost:8080/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        })
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
 
-        if (!res.ok) throw new Error("Login failed")
+      if (!res.ok) throw new Error("Login failed")
 
-        const token = await res.text()
-        localStorage.setItem("token", token)
-        
-        // In a real app, we might also fetch user details here
-        // For now, setting a mock user to simulate "logged in" state
-        setUser(mockUser) 
-        
-        setIsLoading(false)
-        return true
+      const token = await res.text()
+      localStorage.setItem("token", token)
+
+      // In a real app, we might also fetch user details here
+      // For now, setting a mock user to simulate "logged in" state
+      setUser(mockUser)
+
+      setIsLoading(false)
+      return true
     } catch (error) {
-        console.error("Login failed:", error)
-        setIsLoading(false)
-        return false
+      console.error("Login failed:", error)
+      setIsLoading(false)
+      return false
     }
   }, [])
 
@@ -137,24 +137,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         formData.append("aadhaarPdf", data.aadhaarFile as File)
       }
 
-      // MOCK IMPLEMENTATION: Simulate network delay and success
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      
-      console.log("Mock Registration Data:", { requestPayload })
-
-      /* 
-      // Original API Call - restore when backend is available
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         body: formData,
-        credentials: "include",
       })
 
       if (!response.ok) {
         const errorText = await response.text()
         throw new Error(errorText)
       }
-      */
 
       setIsLoading(false)
       return true

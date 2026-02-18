@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useState, useRef, useCallback, useEffect } from "react"
+import React from "react"
+
+import { useState, useRef, useCallback, useEffect } from "react"
 import { useAuth } from "@/context/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import {
   Shield, ArrowLeft, ArrowRight, Upload, Camera, Eye, EyeOff,
-  Loader2, CheckCircle2, AlertCircle, X, Lock, FileText, Fingerprint
+  Loader2, CheckCircle2, AlertCircle, X, Lock
 } from "lucide-react"
 
 interface RegistrationPageProps {
@@ -40,7 +42,7 @@ interface FormErrors {
   [key: string]: string
 }
 
-/* --- Institutional Password Security Monitor --- */
+
 function PasswordStrengthBar({ password }: { password: string }) {
   const getStrength = (pw: string) => {
     let score = 0
@@ -52,17 +54,33 @@ function PasswordStrengthBar({ password }: { password: string }) {
     return score
   }
   const strength = getStrength(password)
-  const colors = ["bg-red-600", "bg-red-600", "bg-amber-500", "bg-emerald-600", "bg-emerald-600"]
-  const color = strength === 0 ? "bg-slate-200" : colors[strength - 1]
+  const labels = ["Very Weak", "Weak", "Fair", "Strong", "Very Strong"]
+  const colors = [
+    "bg-destructive",
+    "bg-destructive",
+    "bg-[hsl(38,92%,50%)]",
+    "bg-accent",
+    "bg-accent",
+  ]
+  const label = strength === 0 ? "" : labels[strength - 1]
+  const color = strength === 0 ? "bg-muted" : colors[strength - 1]
 
   return (
-    <div className="space-y-1.5 mt-2">
+    <div className="space-y-1">
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className={`h-1.5 flex-1 rounded-none transition-colors ${i <= strength ? color : "bg-slate-100"}`} />
+          <div
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-colors ${i <= strength ? color : "bg-muted"
+              }`}
+          />
         ))}
       </div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Registry Security Score: {strength}/5</p>
+      {label && (
+        <p className={`text-xs ${strength <= 2 ? "text-destructive" : "text-accent"}`}>
+          {label}
+        </p>
+      )}
     </div>
   )
 }
@@ -79,9 +97,19 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
   const streamRef = useRef<MediaStream | null>(null)
 
   const [form, setForm] = useState<FormData>({
-    fullName: "", dob: "", gender: "", address: "", email: "", phone: "",
-    aadhaar: "", aadhaarFile: null, profilePhoto: null, capturedPhoto: null,
-    password: "", confirmPassword: "", acceptTerms: false,
+    fullName: "",
+    dob: "",
+    gender: "",
+    address: "",
+    email: "",
+    phone: "",
+    aadhaar: "",
+    aadhaarFile: null,
+    profilePhoto: null,
+    capturedPhoto: null,
+    password: "",
+    confirmPassword: "",
+    acceptTerms: false,
   })
 
   const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
@@ -98,84 +126,147 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     return digits.replace(/(\d{4})(?=\d)/g, "$1-")
   }
 
-  /* Cleanup Camera Session */
+  // Cleanup camera on unmount
   useEffect(() => {
     return () => {
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop())
+        for (const track of streamRef.current.getTracks()) track.stop()
       }
     }
   }, [])
 
+  // Handle video stream attachment
+  useEffect(() => {
+    if (cameraActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+    }
+  }, [cameraActive])
+
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 640, height: 480 },
+        video: { facingMode: "user", width: 320, height: 240 },
       })
       streamRef.current = stream
       setCameraActive(true)
-      if (videoRef.current) videoRef.current.srcObject = stream
+
     } catch {
-      setErrors((prev) => ({ ...prev, camera: "HARDWARE ERROR: Camera access denied by system." }))
+      setErrors((prev) => ({
+        ...prev,
+        camera: "Camera access denied. Please allow camera permissions.",
+      }))
     }
   }, [])
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current) return
     const canvas = document.createElement("canvas")
-    canvas.width = 640
-    canvas.height = 480
+    canvas.width = 320
+    canvas.height = 240
     const ctx = canvas.getContext("2d")
     if (ctx) {
-      ctx.drawImage(videoRef.current, 0, 0, 640, 480)
-      updateField("capturedPhoto", canvas.toDataURL("image/jpeg", 0.9))
+      ctx.drawImage(videoRef.current, 0, 0, 320, 240)
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.8)
+      updateField("capturedPhoto", dataUrl)
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
+      for (const track of streamRef.current.getTracks()) track.stop()
     }
     setCameraActive(false)
   }, [])
 
-  const handleNext = () => {
-    if (step === 1) {
-      const errs: FormErrors = {}
-      if (!form.fullName.trim()) errs.fullName = "Legal identity required."
-      if (!form.aadhaar || form.aadhaar.length < 12) errs.aadhaar = "Valid 12-digit UID required."
-      if (Object.keys(errs).length > 0) return setErrors(errs)
-      setStep(2)
-    } else if (step === 2) {
-      if (!form.aadhaarFile && !form.capturedPhoto) {
-        return setErrors({ uploads: "Mandatory verification documents missing." })
-      }
-      setStep(3)
+  const validateStep1 = (): boolean => {
+    const errs: FormErrors = {}
+    if (!form.fullName.trim()) errs.fullName = "Full name is required."
+    if (!form.dob) errs.dob = "Date of birth is required."
+    if (!form.gender) errs.gender = "Gender is required."
+    if (!form.address.trim()) errs.address = "Address is required."
+    if (!form.email.trim()) errs.email = "Email is required."
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errs.email = "Enter a valid email address."
+    if (!form.phone.trim()) errs.phone = "Phone number is required."
+    else if (!/^\d{10}$/.test(form.phone))
+      errs.phone = "Enter a valid 10-digit phone number."
+    if (!form.aadhaar.trim()) errs.aadhaar = "Aadhaar number is required."
+    else if (form.aadhaar.replace(/\D/g, "").length !== 12)
+      errs.aadhaar = "Aadhaar must be exactly 12 digits."
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const validateStep2 = (): boolean => {
+    const errs: FormErrors = {}
+    if (!form.aadhaarFile && !form.profilePhoto && !form.capturedPhoto) {
+      errs.uploads = "Please upload at least your Aadhaar document."
     }
+    if (!form.aadhaarFile) errs.aadhaarFile = "Aadhaar PDF is required."
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const validateStep3 = (): boolean => {
+    const errs: FormErrors = {}
+    if (!form.password) errs.password = "Password is required."
+    else if (form.password.length < 8)
+      errs.password = "Password must be at least 8 characters."
+    else if (!/[A-Z]/.test(form.password))
+      errs.password = "Include at least one uppercase letter."
+    else if (!/\d/.test(form.password))
+      errs.password = "Include at least one number."
+    else if (!/[^A-Za-z0-9]/.test(form.password))
+      errs.password = "Include at least one special character."
+    if (!form.confirmPassword) errs.confirmPassword = "Confirm your password."
+    else if (form.password !== form.confirmPassword)
+      errs.confirmPassword = "Passwords do not match."
+    if (!form.acceptTerms) errs.acceptTerms = "You must accept the terms."
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const nextStep = () => {
+    if (step === 1 && validateStep1()) setStep(2)
+    else if (step === 2 && validateStep2()) setStep(3)
+  }
+
+  const prevStep = () => {
+    setErrors({})
+    setStep((s) => Math.max(1, s - 1))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (form.password !== form.confirmPassword) {
-      return setErrors({ confirmPassword: "Security passphrase mismatch." })
-    }
-    const success = await register(form as any)
+    if (!validateStep3()) return
+    const success = await register(form as unknown as Record<string, unknown>)
+
+
     if (success) setSubmitted(true)
   }
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f1f5f9] px-4">
-        <Card className="max-w-md w-full rounded-none border-t-8 border-t-[#1e40af] shadow-2xl bg-white">
-          <CardContent className="pt-12 pb-12 text-center space-y-6">
-            <div className="mx-auto w-20 h-20 rounded-none bg-emerald-50 border-2 border-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="h-10 w-10 text-emerald-600" />
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="max-w-md w-full shadow-xl">
+          <CardContent className="pt-8 pb-8 text-center space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+              <CheckCircle2 className="h-8 w-8 text-accent" />
             </div>
-            <h2 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">Application Filed</h2>
-            <p className="text-[#64748b] text-[11px] font-bold leading-relaxed uppercase tracking-wide px-4">
-              Your enrollment dossier is now in the queue for manual audit.
-              Verification typically completes within 48 business hours.
+            <h2 className="text-xl font-bold text-foreground">Registration Submitted</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Your registration has been submitted successfully. Your account is now pending approval by an administrator. You will be notified once your account is approved.
+
             </p>
-            <div className="flex flex-col gap-3 mt-6">
-              <Button onClick={onNavigateToLogin} className="w-full h-12 rounded-none bg-[#1e293b] font-black uppercase tracking-widest text-[11px]">
-                Return to Login Terminal
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-muted-foreground text-sm font-medium">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Awaiting Approval
+            </div>
+            <div className="flex flex-col gap-2 mt-4">
+              {onNavigateToProfile && (
+                <Button onClick={onNavigateToProfile} className="w-full h-11">
+                  View My Profile
+                </Button>
+              )}
+              <Button onClick={onNavigateToLogin} variant="outline" className="w-full h-11">
+                Back to Login
               </Button>
             </div>
           </CardContent>
@@ -185,166 +276,434 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
   }
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] flex flex-col font-sans">
-
-      <div className="flex-1 overflow-y-auto py-12 px-4">
-        <div className="max-w-3xl mx-auto">
-          {/* Registry Stepper */}
-          <div className="mb-10">
-            <div className="flex justify-between mb-4">
-              {[1, 2, 3].map((s) => (
-                <div key={s} className={`flex items-center gap-3 ${step >= s ? "text-[#1e40af]" : "text-slate-400"}`}>
-                  <div className={`h-8 w-8 flex items-center justify-center border-2 font-black text-xs ${step >= s ? "border-[#1e40af] bg-white" : "border-slate-200"}`}>
-                    {s}
-                  </div>
-                  <span className="hidden sm:block text-[10px] font-black uppercase tracking-widest">
-                    {s === 1 ? "Vital Data" : s === 2 ? "Identity Audit" : "Security"}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <Progress value={(step / 3) * 100} className="h-1.5 rounded-none bg-slate-200" />
+    <div className="min-h-screen bg-background px-4 py-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground mb-3 shadow-lg">
+            <Lock className="h-10 w-10" />
           </div>
+          <h1 className="text-2xl font-bold text-foreground">Create Account</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Register for VOTUM
+          </p>
+        </div>
 
-          <Card className="rounded-none border-x-border border-b-border border-t-0 shadow-2xl bg-white">
-            <div className="bg-[#1e40af] h-2 w-full" />
-            <CardHeader className="pt-8 px-10">
-              <CardTitle className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">
-                {step === 1 ? "Registry Enrollment" : step === 2 ? "Credential Verification" : "Secure Access"}
-              </CardTitle>
-              <CardDescription className="text-[#64748b] font-bold text-[10px] uppercase tracking-widest mt-1">
-                Provide mandatory legal identifiers for digital ballot authorization.
-              </CardDescription>
-            </CardHeader>
+        {/* Progress */}
+        <div className="mb-6">
+          <div className="flex justify-between text-xs text-muted-foreground mb-2">
+            <span className={step >= 1 ? "text-primary font-semibold" : ""}>
+              1. Personal Info
+            </span>
+            <span className={step >= 2 ? "text-primary font-semibold" : ""}>
+              2. Identity Upload
+            </span>
+            <span className={step >= 3 ? "text-primary font-semibold" : ""}>
+              3. Account Security
+            </span>
+          </div>
+          <Progress value={(step / 3) * 100} className="h-2" />
+        </div>
 
-            <CardContent className="px-10 pb-10">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {step === 1 && (
-                  <div className="space-y-6">
+        <Card className="shadow-xl border-border">
+          <CardHeader>
+            <CardTitle>
+              {step === 1 && "Personal Information"}
+              {step === 2 && "Identity Verification"}
+              {step === 3 && "Account Security"}
+            </CardTitle>
+            <CardDescription>
+              {step === 1 && "Provide your personal details as per government records."}
+              {step === 2 && "Upload your identity documents and photo for verification."}
+              {step === 3 && "Set up a secure password for your account."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              {/* Step 1: Personal Information */}
+              {step === 1 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      placeholder="As per government ID"
+                      value={form.fullName}
+                      onChange={(e) => updateField("fullName", e.target.value)}
+                      className="h-11"
+                    />
+                    {errors.fullName && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.fullName}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Legal Full Name</Label>
-                      <Input className="rounded-none border-2 border-slate-200 h-12 uppercase" placeholder="AS PER AADHAAR" value={form.fullName} onChange={(e) => updateField("fullName", e.target.value)} />
-                      {errors.fullName && <p className="text-[10px] text-red-600 font-bold uppercase mt-1">{errors.fullName}</p>}
+                      <Label htmlFor="dob">Date of Birth</Label>
+                      <Input
+                        id="dob"
+                        type="date"
+                        value={form.dob}
+                        onChange={(e) => updateField("dob", e.target.value)}
+                        className="h-11"
+                      />
+                      {errors.dob && (
+                        <p className="text-xs text-destructive flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.dob}
+                        </p>
+                      )}
                     </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Date of Birth</Label>
-                        <Input type="date" className="rounded-none border-2 border-slate-200 h-12" value={form.dob} onChange={(e) => updateField("dob", e.target.value)} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Gender</Label>
-                        <Select value={form.gender} onValueChange={(v) => updateField("gender", v)}>
-                          <SelectTrigger className="rounded-none border-2 border-slate-200 h-12"><SelectValue placeholder="SELECT" /></SelectTrigger>
-                          <SelectContent className="rounded-none">
-                            <SelectItem value="Male">MALE</SelectItem>
-                            <SelectItem value="Female">FEMALE</SelectItem>
-                            <SelectItem value="Other">OTHER</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Registered Domicile Address</Label>
-                      <Textarea className="rounded-none border-2 border-slate-200 min-h-[100px]" value={form.address} onChange={(e) => updateField("address", e.target.value)} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Aadhaar Identification (UID)</Label>
-                      <Input className="rounded-none border-2 border-slate-200 h-12 font-mono tracking-widest" placeholder="XXXX-XXXX-XXXX" value={formatAadhaar(form.aadhaar)} onChange={(e) => updateField("aadhaar", e.target.value.replace(/\D/g, "").slice(0, 12))} />
-                      {errors.aadhaar && <p className="text-[10px] text-red-600 font-bold uppercase mt-1">{errors.aadhaar}</p>}
+                      <Label htmlFor="gender">Gender</Label>
+                      <Select value={form.gender} onValueChange={(v) => updateField("gender", v)}>
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                          <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.gender && (
+                        <p className="text-xs text-destructive flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.gender}
+                        </p>
+                      )}
                     </div>
                   </div>
-                )}
 
-                {step === 2 && (
-                  <div className="space-y-8">
-                    <div className="space-y-3">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Identity Proof (Aadhaar PDF)</Label>
-                      <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-slate-200 p-10 bg-slate-50 cursor-pointer hover:bg-slate-100">
-                        <Upload className="h-8 w-8 text-slate-400" />
-                        <span className="text-[10px] font-black uppercase text-[#1e40af]">{form.aadhaarFile ? form.aadhaarFile.name : "Attach Encrypted PDF"}</span>
-                        <input type="file" accept=".pdf" className="hidden" onChange={(e) => updateField("aadhaarFile", e.target.files?.[0] || null)} />
-                      </label>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Textarea
+                      id="address"
+                      placeholder="Full residential address"
+                      value={form.address}
+                      onChange={(e) => updateField("address", e.target.value)}
+                      rows={3}
+                    />
+                    {errors.address && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.address}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="name@example.com"
+                        value={form.email}
+                        onChange={(e) => updateField("email", e.target.value)}
+                        className="h-11"
+                      />
+                      {errors.email && (
+                        <p className="text-xs text-destructive flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.email}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="space-y-3">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Biometric Portrait Enrollment</Label>
-                      <div className="border-2 border-slate-200 bg-slate-50 overflow-hidden">
-                        {cameraActive ? (
-                          <div className="flex flex-col">
-                            <video ref={videoRef} autoPlay playsInline muted className="w-full aspect-video object-cover grayscale brightness-110" />
-                            <Button type="button" onClick={capturePhoto} className="rounded-none h-14 bg-[#1e40af] text-white font-black uppercase tracking-widest">Finalize Scan</Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="10-digit number"
+                        value={form.phone}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 10)
+                          updateField("phone", v)
+                        }}
+                        className="h-11"
+                      />
+                      {errors.phone && (
+                        <p className="text-xs text-destructive flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+
+                  <div className="space-y-2">
+                    <Label htmlFor="aadhaar">Aadhaar Number</Label>
+                    <Input
+                      id="aadhaar"
+                      placeholder="XXXX-XXXX-XXXX"
+                      value={formatAadhaar(form.aadhaar)}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, "").slice(0, 12)
+                        updateField("aadhaar", raw)
+                      }}
+                      className="h-11 font-mono tracking-wider"
+                    />
+                    {errors.aadhaar && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.aadhaar}
+                      </p>
+                    )}
+                    {form.aadhaar.length > 0 && form.aadhaar.length < 12 && !errors.aadhaar && (
+                      <p className="text-xs text-muted-foreground">
+                        {form.aadhaar.length}/12 digits
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Identity Upload */}
+              {step === 2 && (
+                <div className="space-y-6">
+                  {/* Aadhaar Upload */}
+                  <div className="space-y-2">
+                    <Label>Aadhaar Document (PDF)</Label>
+                    <label
+                      htmlFor="aadhaar-upload"
+                      className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50 hover:bg-secondary/50 transition-colors"
+                    >
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {form.aadhaarFile ? form.aadhaarFile.name : "Click to upload Aadhaar PDF"}
+                      </span>
+                      <input
+                        id="aadhaar-upload"
+                        type="file"
+                        accept=".pdf"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null
+                          updateField("aadhaarFile", file)
+                        }}
+                      />
+                    </label>
+                    {errors.aadhaarFile && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.aadhaarFile}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Profile Photo Upload */}
+                  <div className="space-y-2">
+                    <Label>Profile Photo</Label>
+                    <label
+                      htmlFor="photo-upload"
+                      className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50 hover:bg-secondary/50 transition-colors"
+                    >
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {form.profilePhoto ? form.profilePhoto.name : "Click to upload a photo (JPG/PNG)"}
+                      </span>
+                      <input
+                        id="photo-upload"
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null
+                          updateField("profilePhoto", file)
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Camera Capture */}
+                  <div className="space-y-2">
+                    <Label>Live Face Capture</Label>
+                    <div className="rounded-lg border border-border bg-secondary/30 overflow-hidden">
+                      {cameraActive ? (
+                        <div className="relative">
+                          <video
+                            ref={videoRef}
+                            autoPlay
+                            playsInline
+                            muted
+                            className="w-full aspect-video bg-foreground/5 object-cover"
+                          />
+                          <div className="flex gap-2 p-3">
+                            <Button type="button" onClick={capturePhoto} className="flex-1 h-11">
+                              <Camera className="h-4 w-4 mr-2" />
+                              Capture
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                if (streamRef.current)
+                                  for (const track of streamRef.current.getTracks()) track.stop()
+                                setCameraActive(false)
+                              }}
+                              className="h-11"
+                            >
+                              Cancel
+                            </Button>
                           </div>
-                        ) : form.capturedPhoto ? (
-                          <div className="relative aspect-video">
-                            <img src={form.capturedPhoto} className="w-full h-full object-cover grayscale" />
-                            <button type="button" onClick={() => updateField("capturedPhoto", null)} className="absolute top-4 right-4 bg-black text-white p-2"><X size={16} /></button>
-                          </div>
-                        ) : (
-                          <button type="button" onClick={startCamera} className="w-full py-16 flex flex-col items-center gap-4 hover:bg-slate-100">
-                            <Camera className="text-slate-400 h-10 w-10" />
-                            <span className="text-[10px] font-black uppercase text-slate-500">Activate Secure Biometric Scan</span>
+                        </div>
+                      ) : form.capturedPhoto ? (
+                        <div className="relative">
+                          <img
+                            src={form.capturedPhoto || "/placeholder.svg"}
+                            alt="Captured face"
+                            className="w-full aspect-video object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateField("capturedPhoto", null)}
+                            className="absolute top-2 right-2 bg-foreground/70 text-primary-foreground rounded-full p-1 hover:bg-foreground/90 transition-colors"
+                            aria-label="Remove captured photo"
+                          >
+                            <X className="h-4 w-4" />
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={startCamera}
+                          className="flex flex-col items-center justify-center gap-2 w-full p-8 hover:bg-secondary/60 transition-colors"
+                        >
+                          <Camera className="h-10 w-10 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            Click to open camera for face registration
+                          </span>
+                        </button>
+                      )}
                     </div>
+                    {errors.camera && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.camera}
+                      </p>
+                    )}
                   </div>
-                )}
+                </div>
+              )}
 
-                {step === 3 && (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Secure Passphrase</Label>
-                      <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} className="rounded-none border-2 border-slate-200 h-12 pr-12" value={form.password} onChange={(e) => updateField("password", e.target.value)} />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
-                      </div>
-                      <PasswordStrengthBar password={form.password} />
+              {/* Step 3: Account Security */}
+              {step === 3 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a strong password"
+                        value={form.password}
+                        onChange={(e) => updateField("password", e.target.value)}
+                        className="h-11 pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Confirm Passphrase</Label>
-                      <Input type={showConfirm ? "text" : "password"} className="rounded-none border-2 border-slate-200 h-12" value={form.confirmPassword} onChange={(e) => updateField("confirmPassword", e.target.value)} />
-                    </div>
-
-                    <div className="pt-6 flex items-start gap-4 p-4 bg-slate-50 border border-slate-200">
-                      <Checkbox checked={form.acceptTerms} onCheckedChange={(v) => updateField("acceptTerms", v === true)} className="mt-1 rounded-none border-2 border-[#1e40af]" />
-                      <label className="text-[11px] text-slate-600 font-medium leading-relaxed">
-                        I hereby affirm that the information provided is accurate and I acknowledge that
-                        <span className="text-[#1e40af] font-black underline ml-1">Identity Fraud</span>
-                        is a punishable offense under regional digital audit laws.
-                      </label>
-                    </div>
+                    {form.password && <PasswordStrengthBar password={form.password} />}
+                    {errors.password && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.password}
+                      </p>
+                    )}
                   </div>
-                )}
 
-                <div className="flex justify-between items-center pt-8 border-t-2 border-slate-100">
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-confirm">Confirm Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-confirm"
+                        type={showConfirm ? "text" : "password"}
+                        placeholder="Re-enter your password"
+                        value={form.confirmPassword}
+                        onChange={(e) => updateField("confirmPassword", e.target.value)}
+                        className="h-11 pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm(!showConfirm)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showConfirm ? "Hide password" : "Show password"}
+                      >
+                        {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.confirmPassword}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-start gap-3 pt-2">
+                    <Checkbox
+                      id="terms"
+                      checked={form.acceptTerms}
+                      onCheckedChange={(v) => updateField("acceptTerms", v === true)}
+                    />
+                    <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                      I accept the{" "}
+                      <span className="text-primary font-medium underline">Terms of Service</span>{" "}
+                      and{" "}
+                      <span className="text-primary font-medium underline">Privacy Policy</span>.
+                      I understand that my data will be processed in accordance with government data protection regulations.
+                    </label>
+                  </div>
+                  {errors.acceptTerms && (
+                    <p className="text-xs text-destructive flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {errors.acceptTerms}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Navigation buttons */}
+              <div className="flex justify-between mt-8 pt-4 border-t border-border">
+                {step > 1 ? (
+                  <Button type="button" variant="outline" onClick={prevStep} className="h-11 bg-transparent">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                ) : (
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => { step === 1 ? onNavigateToLogin() : setStep(step - 1) }}
-                    className="h-12 px-6 rounded-none font-black uppercase tracking-widest text-[10px] text-slate-500"
+                    onClick={onNavigateToLogin}
+                    className="h-11 text-muted-foreground"
                   >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    {step === 1 ? "Bureau Home" : "Back"}
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Login
                   </Button>
+                )}
 
-                  {step < 3 ? (
-                    <Button type="button" onClick={handleNext} className="h-12 px-10 rounded-none bg-[#1e40af] text-white font-black uppercase tracking-widest text-[10px] shadow-lg">
-                      Proceed <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button type="submit" disabled={isLoading || !form.acceptTerms} className="h-12 px-10 rounded-none bg-[#1e40af] text-white font-black uppercase tracking-widest text-[10px] shadow-lg">
-                      {isLoading ? "Encrypting Dossier..." : "File Application"}
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+                {step < 3 ? (
+                  <Button type="button" onClick={nextStep} className="h-11">
+                    Next
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button type="submit" className="h-11 min-w-[180px]" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Registration"
+                    )}
+                  </Button>
+                )}
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
