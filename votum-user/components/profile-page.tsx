@@ -65,7 +65,7 @@ export function ProfilePage() {
 
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex items-center gap-4 mb-10">
-          <h1 className="text-3xl font-black text-[#0f172a] uppercase tracking-tight">Citizen Dossier</h1>
+          <h1 className="text-3xl font-black text-[#0f172a] uppercase tracking-tight">Voter Dossier</h1>
           <div className="flex-1 h-1 bg-[#1e40af]"></div>
         </div>
 

@@ -17,6 +17,7 @@ export interface User {
 }
 
 export interface Election {
+  published: unknown
   id: string
   title: string
   description: string

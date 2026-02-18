@@ -17,7 +17,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
   const navItems = [
     { id: "dashboard", label: "Registry Dashboard", icon: LayoutDashboard },
-    { id: "profile", label: "Citizen Profile", icon: User },
+    { id: "profile", label: "Voter Profile", icon: User },
   ]
 
   useEffect(() => {
