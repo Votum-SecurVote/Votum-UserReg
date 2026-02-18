@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import type { Election as GlobalElection } from "@/lib/types"
 import {
   Card,
   CardContent,
@@ -65,7 +66,11 @@ function ElectionStatusBadge({ status }: { status: string }) {
   )
 }
 
-export function DashboardPage() {
+interface DashboardPageProps {
+  onViewElection: (election: GlobalElection) => void
+}
+
+export function DashboardPage({ onViewElection }: DashboardPageProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [elections, setElections] = useState<Election[]>([])
   const [loading, setLoading] = useState(true)
