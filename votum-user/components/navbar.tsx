@@ -33,7 +33,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token")
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+        const API_URL = "http://13.48.1.139"
         const res = await fetch(`${API_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         })

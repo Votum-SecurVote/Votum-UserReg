@@ -8,7 +8,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react"
 import type { User } from "@/lib/types"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+const API_URL = "http://13.48.1.139"
 
 interface AuthContextType {
   user: User | null
