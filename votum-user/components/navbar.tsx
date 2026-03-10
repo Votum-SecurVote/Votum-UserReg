@@ -33,7 +33,8 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token")
-        const res = await fetch("http://localhost:8080/api/user/profile", {
+        const API_URL = "http://13.48.1.139/"
+        const res = await fetch(`${API_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error("Failed to fetch profile")
