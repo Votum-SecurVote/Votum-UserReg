@@ -5,6 +5,8 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
 import { Badge } from "@/components/ui/badge"
 import type { Election as GlobalElection } from "@/lib/types"
 import {
@@ -94,7 +96,7 @@ export function DashboardPage({ onViewElection }: DashboardPageProps) {
 
         // Fetch profile
         const profileRes = await fetch(
-          "http://localhost:8080/api/user/profile",
+          `${API_URL}/api/user/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -107,7 +109,7 @@ export function DashboardPage({ onViewElection }: DashboardPageProps) {
 
         // Fetch elections
         const electionRes = await fetch(
-          "http://localhost:8080/api/user/elections",
+          `${API_URL}/api/user/elections`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

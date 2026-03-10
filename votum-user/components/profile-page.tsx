@@ -6,6 +6,25 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+
+/**
+ * Converts an absolute storage path returned by the backend
+ * (e.g. "C:/Users/.../Storage/users/photos/uuid.jpg")
+ * into a URL served by the /api/files/ endpoint
+ * (e.g. "http://localhost:8080/api/files/users/photos/uuid.jpg").
+ */
+function fileUrl(storagePath: string | undefined | null): string | null {
+  if (!storagePath) return null
+  // Normalise separators 
+  const normalised = storagePath.replace(/\\/g, "/")
+  // Find the "users/" segment and take everything from there
+  const idx = normalised.indexOf("/users/")
+  if (idx === -1) return null
+  const relative = normalised.slice(idx + 1) // e.g. "users/photos/abc.jpg"
+  return `${API_URL}/api/files/${relative}`
+}
 import {
   User, Mail, Phone, Calendar, MapPin, Shield,
   Loader2, FileText, ExternalLink, ShieldCheck,
@@ -41,7 +60,7 @@ export function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token")
-        const res = await fetch("http://localhost:8080/api/user/profile", {
+        const res = await fetch(`${API_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error("Failed to fetch profile")
@@ -85,8 +104,8 @@ export function ProfilePage() {
             <Card className="rounded-none border-2 border-slate-200 shadow-none bg-white">
               <CardContent className="p-6 flex flex-col items-center">
                 <div className="w-full aspect-[3/4] border-4 border-slate-100 bg-slate-50 relative overflow-hidden group">
-                  {user.photoUrl ? (
-                    <img src={user.photoUrl} alt="Official Portrait" className="w-full h-full object-cover" />
+                  {fileUrl(user.photoPath) ? (
+                    <img src={fileUrl(user.photoPath)!} alt="Official Portrait" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
                       <User size={80} strokeWidth={1} />
@@ -167,7 +186,7 @@ export function ProfilePage() {
                       <FileText size={32} />
                     </div>
                     <div>
-                      <h4 className="font-black text-sm uppercase tracking-tight text-[#0f172a]">Aadhar_Card_Verified.pdf</h4>
+                      <h4 className="font-black text-sm uppercase tracking-tight text-[#0f172a]">Aadhar_Card.pdf</h4>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge className="rounded-none bg-emerald-600 text-[9px] font-black tracking-widest h-5">ENCRYPTED</Badge>
                         <p className="text-[10px] text-slate-400 font-bold uppercase">Size: 1.2 MB</p>
@@ -176,8 +195,12 @@ export function ProfilePage() {
                   </div>
 
                   <button
-                    onClick={() => window.open(user.aadharPdfUrl, '_blank')}
-                    className="flex items-center gap-3 bg-[#1e293b] text-white px-6 py-3 font-black text-[10px] uppercase tracking-widest hover:bg-[#0f172a] transition-colors w-full md:w-auto justify-center"
+                    onClick={() => {
+                      const url = fileUrl(user.aadhaarPdfPath)
+                      if (url) window.open(url, '_blank')
+                    }}
+                    disabled={!fileUrl(user.aadhaarPdfPath)}
+                    className="flex items-center gap-3 bg-[#1e293b] text-white px-6 py-3 font-black text-[10px] uppercase tracking-widest hover:bg-[#0f172a] transition-colors w-full md:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     View Official Document <ExternalLink size={14} />
                   </button>

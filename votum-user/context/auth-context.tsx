@@ -1,22 +1,22 @@
 /**
  * Authentication Context.
  * specific context provider that manages user authentication state,
- * including login, registration, OTP verification, and session timeouts.
+ * including login, registration, and session timeouts.
  */
 "use client"
 
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react"
 import type { User } from "@/lib/types"
-import { mockUser } from "@/lib/mock-data"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
 
 interface AuthContextType {
   user: User | null
   registeredUser: User | null
   isAuthenticated: boolean
   isLoading: boolean
-  verifyOtp: (otp: string) => Promise<boolean>
-  register: (data: Record<string, unknown>) => Promise<boolean>
   login: (data: Record<string, unknown>) => Promise<boolean>
+  register: (data: Record<string, unknown>) => Promise<boolean>
   logout: () => void
   updateProfile?: (data: Partial<User>) => void
 }
@@ -78,12 +78,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Authenticates the user against the backend API.
-   * On success, sets the user state and stores the token.
+   * On success, stores the JWT token and fetches the real user profile.
    */
   const login = useCallback(async (data: Record<string, unknown>) => {
     setIsLoading(true)
     try {
-      const res = await fetch("http://13.48.1.139/api/auth/login", {
+      // Step 1: Authenticate and get JWT token
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -94,32 +95,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = await res.text()
       localStorage.setItem("token", token)
 
-      // In a real app, we might also fetch user details here
-      // For now, setting a mock user to simulate "logged in" state
-      setUser(mockUser)
+      // Step 2: Fetch real user profile using the token
+      const profileRes = await fetch(`${API_URL}/api/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (!profileRes.ok) throw new Error("Profile fetch failed")
+
+      const profileData = await profileRes.json()
+
+      // Map backend response to frontend User type
+      setUser({
+        id: profileData.userId || "",
+        fullName: profileData.fullName,
+        email: profileData.email,
+        phone: profileData.phone,
+        aadhaar: "",
+        dob: profileData.dob || "",
+        gender: profileData.gender || "",
+        address: profileData.address || "",
+        status: profileData.status,
+        role: "voter",
+        profilePhoto: profileData.photoPath || undefined,
+      })
 
       setIsLoading(false)
       return true
     } catch (error) {
       console.error("Login failed:", error)
+      localStorage.removeItem("token")
       setIsLoading(false)
       return false
     }
-  }, [])
-
-
-
-
-  /**
-   * Simulates OTP verification.
-   * In a real app, this would verify the code with the backend.
-   */
-  const verifyOtp = useCallback(async (_otp: string) => {
-    setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    setUser(mockUser)
-    setIsLoading(false)
-    return true
   }, [])
 
   /**
@@ -158,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         formData.append("aadhaarPdf", data.aadhaarFile as File)
       }
 
-      const response = await fetch("http://localhost:8080/api/auth/register", {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         body: formData,
       })
@@ -185,7 +192,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         isLoading,
         login,
-        verifyOtp,
         register,
         logout,
         updateProfile: undefined,
