@@ -36,7 +36,6 @@ interface FormData {
   phone: string
   aadhaar: string
   aadhaarFile: File | null
-  profilePhoto: File | null
   capturedPhoto: string | null
   password: string
   confirmPassword: string
@@ -118,7 +117,6 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
     phone: "",
     aadhaar: "",
     aadhaarFile: null,
-    profilePhoto: null,
     capturedPhoto: null,
     password: "",
     confirmPassword: "",
@@ -226,10 +224,8 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
   // Validates Step 2: Identity Documents and Face Capture.
   const validateStep2 = (): boolean => {
     const errs: FormErrors = {}
-    if (!form.aadhaarFile && !form.profilePhoto && !form.capturedPhoto) {
-      errs.uploads = "Please upload at least your Aadhaar document."
-    }
     if (!form.aadhaarFile) errs.aadhaarFile = "Aadhaar PDF is required."
+    if (!form.capturedPhoto) errs.capturedPhoto = "Live face capture is required."
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -268,8 +264,21 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateStep3()) return
-    const success = await register(form as unknown as Record<string, unknown>)
 
+    // Convert capturedPhoto data URL to File
+    let profilePhotoFile: File | null = null
+    if (form.capturedPhoto) {
+      const response = await fetch(form.capturedPhoto)
+      const blob = await response.blob()
+      profilePhotoFile = new File([blob], "profile-photo.jpg", { type: "image/jpeg" })
+    }
+
+    const formData = {
+      ...form,
+      profilePhoto: profilePhotoFile,
+    }
+
+    const success = await register(formData as unknown as Record<string, unknown>)
 
     if (success) setSubmitted(true)
   }
@@ -522,33 +531,9 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
                     )}
                   </div>
 
-                  {/* Profile Photo Upload */}
-                  <div className="space-y-2">
-                    <Label>Profile Photo</Label>
-                    <label
-                      htmlFor="photo-upload"
-                      className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50 hover:bg-secondary/50 transition-colors"
-                    >
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {form.profilePhoto ? form.profilePhoto.name : "Click to upload a photo (JPG/PNG)"}
-                      </span>
-                      <input
-                        id="photo-upload"
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        className="sr-only"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null
-                          updateField("profilePhoto", file)
-                        }}
-                      />
-                    </label>
-                  </div>
-
                   {/* Camera Capture */}
                   <div className="space-y-2">
-                    <Label>Live Face Capture</Label>
+                    <Label>Live Face Capture (Profile Photo)</Label>
                     <div className="rounded-lg border border-border bg-secondary/30 overflow-hidden">
                       {cameraActive ? (
                         <div className="relative">
@@ -610,6 +595,11 @@ export function RegistrationPage({ onNavigateToLogin, onNavigateToProfile }: Reg
                     {errors.camera && (
                       <p className="text-xs text-destructive flex items-center gap-1">
                         <AlertCircle className="h-3 w-3" /> {errors.camera}
+                      </p>
+                    )}
+                    {errors.capturedPhoto && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.capturedPhoto}
                       </p>
                     )}
                   </div>
