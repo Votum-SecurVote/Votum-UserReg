@@ -45,6 +45,7 @@ interface Election {
 interface UserProfile {
   fullName: string
   status: string
+  photoPath?: string
 }
 
 /**
@@ -129,6 +130,16 @@ export function DashboardPage({ onViewElection }: DashboardPageProps) {
     fetchData()
   }, [])
 
+  function fileUrl(storagePath: string | undefined | null): string | null {
+    if (!storagePath) return null
+    // Normalise separators 
+    const normalised = storagePath.replace(/\\/g, "/")
+    // Find the "users/" segment and take everything from there
+    const idx = normalised.indexOf("users/")
+    const relative = idx !== -1 ? normalised.slice(idx) : normalised
+    return `${API_URL}/api/files/${relative}`
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f1f5f9] font-sans">
       <div className="flex-1 overflow-y-auto">
@@ -138,8 +149,17 @@ export function DashboardPage({ onViewElection }: DashboardPageProps) {
           {profile && (
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b-4 border-[#1e40af] pb-8">
               <div className="flex items-center gap-5">
-                <div className="h-16 w-16 bg-white border-2 border-[#cbd5e1] flex items-center justify-center">
-                  <User className="h-10 w-10 text-[#64748b]" />
+                <div className="h-20 w-16 bg-white border-2 border-[#cbd5e1] flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                  {profile.photoPath && fileUrl(profile.photoPath) ? (
+                    <img 
+                      src={fileUrl(profile.photoPath)!} 
+                      alt="Official Portrait" 
+                      className="w-full h-full object-cover" 
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <User className="h-8 w-8 text-[#94a3b8]" />
+                  )}
                 </div>
                 <div>
                   <h1 className="text-3xl font-black text-[#0f172a] uppercase tracking-tight">
