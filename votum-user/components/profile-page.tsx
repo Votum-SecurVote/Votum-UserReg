@@ -20,9 +20,8 @@ function fileUrl(storagePath: string | undefined | null): string | null {
   // Normalise separators 
   const normalised = storagePath.replace(/\\/g, "/")
   // Find the "users/" segment and take everything from there
-  const idx = normalised.indexOf("/users/")
-  if (idx === -1) return null
-  const relative = normalised.slice(idx + 1) // e.g. "users/photos/abc.jpg"
+  const idx = normalised.indexOf("users/")
+  const relative = idx !== -1 ? normalised.slice(idx) : normalised // e.g. "users/photos/abc.jpg"
   return `${API_URL}/api/files/${relative}`
 }
 import {
